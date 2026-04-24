@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Mural de Vídeos — Login</title>
-  <meta name="description" content="Mural de vídeos com login por usuário (bella, analuisa, gio e ana), categorias e vídeos salvos por conta na nuvem." />
+  <title>Mural de Vídeos — Minas Radiadores</title>
+  <meta name="description" content="Mural de vídeos por categorias. Responsivo, rápido e fácil de editar." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -21,7 +21,6 @@
       --radius-xl:18px;
       --radius-lg:14px;
       --radius-md:12px;
-      --danger:#ff6b6b;
     }
     *{box-sizing:border-box}
     html,body{height:100%}
@@ -36,7 +35,6 @@
     }
     a{color:inherit;text-decoration:none}
     .container{width:min(1200px,92vw);margin-inline:auto}
-
     header.hero{
       position:relative;overflow:hidden;margin:24px 0 14px;
       border-radius:var(--radius-xl);
@@ -44,7 +42,7 @@
       border:1px solid rgba(255,255,255,.06);
       box-shadow:var(--shadow);
     }
-    .hero-inner{display:flex;align-items:center;justify-content:space-between;gap:28px;padding:32px 28px 28px}
+    .hero-inner{display:flex;align-items:center;gap:28px;padding:32px 28px 28px}
     .hero-title{font-size:clamp(20px,4vw,32px);font-weight:700;letter-spacing:.2px}
     .hero-sub{color:var(--muted);max-width:72ch;margin-top:6px}
     .badge{
@@ -64,22 +62,17 @@
     .tab:hover{opacity:1;transform:translateY(-1px)}
     .tab.active{outline:2px solid var(--ring);box-shadow:0 0 0 6px rgba(124,92,255,.08)}
 
+    .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}
     section.category{margin:22px 0 32px}
     .category-head{display:flex;align-items:center;justify-content:space-between;margin:10px 6px 8px}
     .category h2{font-size:clamp(18px,3vw,24px);margin:0}
-    .category-actions{display:flex;gap:8px}
-    .btn{
-      all:unset;cursor:pointer;
-      padding:8px 10px;border-radius:10px;
-      background:var(--card);border:1px solid rgba(255,255,255,.08);
-      font-size:13px;font-weight:600;color:#e9ecf7;
-    }
-    .btn:hover{outline:2px solid var(--ring)}
-    .btn-danger{background:#251619;border-color:#4a2323;color:#ffd4d4}
-    .btn-danger:hover{outline:2px solid rgba(255,107,107,.35)}
-
     .category-desc{
-      margin:0 6px 12px;color:var(--muted);line-height:1.5;font-size:14px;max-width:80ch;white-space:pre-wrap;
+      margin:0 6px 12px;
+      color:var(--muted);
+      line-height:1.5;
+      font-size:14px;
+      max-width:80ch;
+      white-space:pre-wrap;
     }
 
     .video-grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
@@ -103,66 +96,106 @@
     .play button{cursor:pointer;border:none;padding:12px 16px;border-radius:999px;font-weight:700;
       background:linear-gradient(135deg,var(--accent),var(--accent-2));color:white;box-shadow:0 8px 26px rgba(124,92,255,.4)}
 
-    .card-actions{
-      position:absolute;right:8px;top:8px;display:flex;gap:6px;z-index:2;
+    /* =====================
+       MODAL — responsivo mobile
+       ===================== */
+    .modal{
+      position:fixed;inset:0;display:none;place-items:center;
+      background:rgba(0,0,0,.75);backdrop-filter:blur(6px);
+      z-index:100;
+      padding:16px;          /* espaço nas bordas no mobile */
+      overflow-y:auto;
     }
-    .icon-btn{
-      all:unset;cursor:pointer;
-      padding:6px 8px;border-radius:8px;
-      background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.18);
-      font-size:12px;color:#fff;
-    }
-    .icon-btn.danger{background:rgba(120,20,20,.65)}
-    .icon-btn:hover{outline:2px solid var(--ring)}
-
-    .modal{position:fixed;inset:0;display:none;place-items:center;background:rgba(0,0,0,.6);backdrop-filter:blur(5px);z-index:100}
     .modal.open{display:grid}
-    .modal-card{width:min(1100px,92vw);background:#0f1118;border:1px solid rgba(255,255,255,.08);border-radius:16px;overflow:hidden;box-shadow:var(--shadow)}
-    .modal-header{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.06)}
-    .modal-title{font-weight:700}
-    .close{all:unset;cursor:pointer;padding:8px;border-radius:10px}
-    .close:hover{background:rgba(255,255,255,.06)}
+
+    .modal-card{
+      width:min(960px,100%);
+      background:#0f1118;
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:16px;
+      overflow:hidden;
+      box-shadow:var(--shadow);
+      position:relative;
+    }
+
+    /* Header do modal */
+    .modal-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding:10px 14px;
+      border-bottom:1px solid rgba(255,255,255,.06);
+      gap:8px;
+    }
+    .modal-title{
+      font-weight:700;
+      font-size:clamp(13px,2.5vw,16px);
+      flex:1;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+
+    /* Botão fechar — sempre visível e grande no mobile */
+    .close{
+      all:unset;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      width:38px;
+      height:38px;
+      min-width:38px;
+      border-radius:10px;
+      font-size:18px;
+      color:#e6e8ec;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.1);
+      transition:background .15s ease;
+      flex-shrink:0;
+    }
+    .close:hover{background:rgba(255,255,255,.16)}
+    .close:active{background:rgba(255,255,255,.22)}
+
     .modal-body{aspect-ratio:16/9;background:#000}
     .modal-body iframe,.modal-body video{width:100%;height:100%;display:block}
-    .modal-body.tiktok{aspect-ratio:auto;background:transparent;padding:12px}
+
+    /* TikTok — vertical */
+    .modal-body.tiktok{
+      aspect-ratio:auto;
+      background:transparent;
+      padding:12px;
+      display:flex;
+      justify-content:center;
+    }
     .modal-body.tiktok blockquote.tiktok-embed{margin:auto}
+
+    /* Mobile: limita altura do vídeo para não ultrapassar a tela */
+    @media (max-width: 600px){
+      .modal{padding:10px}
+      .modal-card{border-radius:12px}
+      .modal-body{
+        aspect-ratio:16/9;
+        max-height:56vw; /* ~56% da largura = proporcional 16/9 */
+      }
+      .modal-body.tiktok{
+        aspect-ratio:auto;
+        max-height:none;
+        padding:8px;
+      }
+    }
 
     footer{opacity:.8;color:var(--muted);text-align:center;padding:28px 8px}
     .hide{display:none !important}
 
+    /* Light mode */
     body.light{--bg:#f6f7fb; --card:#fff; --text:#11131a; --muted:#5a6475;}
     body.light .hero-sub{color:#4c5463}
     body.light .tab{color:#20242e}
     body.light .card{border-color:#eef0f6;background:#fff}
     body.light .dur{background:rgba(255,255,255,.9);color:#0a0b10;border-color:#e7e9ef}
-
-    .auth{
-      position:fixed;inset:0;display:grid;place-items:center;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);z-index:200;
-    }
-    .auth-card{
-      width:min(460px,92vw);background:#0f1118;border:1px solid rgba(255,255,255,.08);
-      border-radius:16px;box-shadow:var(--shadow);padding:22px;
-    }
-    .auth h2{margin:6px 0 12px}
-    .field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
-    .field label{font-size:13px;color:#cfd6e6}
-    .input{
-      width:100%;padding:10px 12px;border-radius:10px;background:#0b0e16;
-      border:1px solid rgba(255,255,255,.08);color:#e9ecf7;
-    }
-    .row{display:flex;gap:10px;align-items:center;justify-content:space-between}
-    .small{font-size:12px;color:var(--muted)}
-    .error{color:#ffd4d4;background:#341d1d;border:1px solid #5a2b2b;padding:8px 10px;border-radius:10px;margin-bottom:10px}
-
-    .editor-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:10px 6px;margin:8px 0 0;}
-    .chip{padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);font-size:12px}
-    .muted{color:var(--muted)}
-    .sep{opacity:.3}
-
-    .empty{
-      display:grid;place-items:center;padding:40px 12px;border:1px dashed rgba(255,255,255,.18);
-      border-radius:14px;color:var(--muted);margin:16px 0 26px;background:rgba(255,255,255,.03)
-    }
+    body.light .close{color:#11131a;background:rgba(0,0,0,.07);border-color:rgba(0,0,0,.12)}
+    body.light .close:hover{background:rgba(0,0,0,.14)}
   </style>
 </head>
 <body>
@@ -171,13 +204,8 @@
       <div class="hero-inner">
         <div>
           <div class="badge">🎬 Mural de Vídeos</div>
-          <h1 class="hero-title" id="heroTitle">Mural de Vídeos</h1>
-          <p class="hero-sub" id="heroSub">Vídeos por categorias — dados salvos na conta (nuvem)</p>
-        </div>
-        <div class="row">
-          <button class="btn" id="mode" title="Alternar tema">🌓 Tema</button>
-          <span class="chip muted" id="whoami">Desconectado</span>
-          <button class="btn" id="logoutBtn">Sair</button>
+          <h1 class="hero-title">Mural Minas Radiadores</h1>
+          <p class="hero-sub">Vídeos direcionados à produção de conteúdo, separados por categorias</p>
         </div>
       </div>
     </header>
@@ -185,163 +213,100 @@
     <div class="controls">
       <div class="controls-inner container">
         <div class="tabs" id="tabs"></div>
-        <div class="editor-bar" id="editorBar">
-          <span class="chip">✏️ Modo edição</span>
-          <button class="btn" id="addCatBtn">+ Categoria</button>
-          <span class="sep">|</span>
-          <button class="btn" id="exportBtn">⬇️ Exportar JSON</button>
-          <button class="btn" id="importBtn">⬆️ Importar JSON</button>
-        </div>
+        <button id="mode" title="Alternar tema" style="all:unset;cursor:pointer;padding:8px 10px;border-radius:10px">🌓</button>
       </div>
     </div>
 
     <main id="content"></main>
-    <footer>Dados salvos na nuvem por usuário</footer>
   </div>
 
   <!-- Modal Player -->
-  <div class="modal" id="modal">
+  <div class="modal" id="modal" role="dialog" aria-modal="true">
     <div class="modal-card">
       <div class="modal-header">
         <div class="modal-title" id="modalTitle">Reproduzindo…</div>
-        <button class="close" id="modalClose" aria-label="Fechar">✕</button>
+        <button class="close" id="modalClose" aria-label="Fechar vídeo">✕</button>
       </div>
       <div class="modal-body" id="modalBody"></div>
     </div>
   </div>
 
-  <!-- Auth -->
-  <div class="auth" id="auth">
-    <div class="auth-card">
-      <h2>Entrar no Mural</h2>
-      <p class="small">
-        Usuários: <b>minasradiadores</b>, <b>oito</b>, <b>marketing</b>.<br>
-        Senha inicial = mesmo nome do usuário.
-      </p>
-      <div class="error" id="authErr" style="display:none"></div>
-      <div class="field">
-        <label for="username">Usuário</label>
-        <input id="username" class="input" placeholder="minasradiadores / oito / marketing" autocomplete="username">
-      </div>
-      <div class="field">
-        <label for="password">Senha</label>
-        <input id="password" type="password" class="input" placeholder="sua senha" autocomplete="current-password">
-      </div>
-      <div class="row">
-        <button class="btn" id="loginBtn">Entrar</button>
-        <button class="btn" id="toggleReset">Trocar senha</button>
-      </div>
-      <div id="resetBox" class="hide">
-        <div class="field" style="margin-top:10px;">
-          <label for="newpass">Nova senha</label>
-          <input id="newpass" type="password" class="input" placeholder="mín. 4 caracteres" autocomplete="new-password">
-        </div>
-        <button class="btn">Salvar nova senha</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Dialog -->
-  <div class="auth hide" id="dialog">
-    <div class="auth-card" id="dialogCard"></div>
-  </div>
-
   <script>
-    /****************************************************
-     * CONFIG JSONBIN
-     ****************************************************/
-    const JSONBIN_API_KEY = '$2a$10$pU.kMmDPkoBYyIXmAAD7RunfNsqNUitnI3lu4hm/jN2MrZA.T7Fvq';
-    const JSONBIN_BIN_ID  = '69171e32ae596e708f58b63d';
+    const videoData = [
+      {
+        category: 'trend',
+        description: 'Roteiro: só pedir que ritinha faz.',
+        items: [
+          { title:'Minha vida 5 minutos antes do despertador tocar', type:'tiktok', src:'https://www.tiktok.com/@_yasmimssousa/video/7564323681720225044?_r=1&_t=ZM-90uU923Nlil' },
+          { title:'Objetivo final', type:'tiktok', src:'https://www.tiktok.com/@olaamigas0/video/7561798463881579796?q=objetivo%20final&t=1761603972468' },
+          { title:'Mentalidade', type:'tiktok', src:'https://www.tiktok.com/@larafeitozaa/video/7474038292783058181?q=vouf%20azer%20conseguir&t=1761604038415' }
+        ]
+      },
+      {
+        category: 'Felca',
+        description: `De produtor de conteúdo a apresentador do Fantástico.
+Felca começou como muitos criadores: um cara com uma câmera, criatividade e vontade de se expressar.
+Lá em 2012, fazia lives de jogos por diversão — sem pensar em fama. Mas o que era hobby virou marca.
 
-    const JSONBIN_URL_LATEST = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`;
-    const JSONBIN_URL        = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
+Com o tempo, ele entendeu o poder do conteúdo. Criou um estilo autêntico, misturando humor, crítica e marketing pessoal. Cada vídeo virou uma vitrine da própria identidade.
 
-    /************ ARMAZENAMENTO LOCAL (só sessão/tema) ************/
-    const LS_SESSION = 'mural:session:v1';
-    const THEME_KEY  = 'mural:mode';
+Em 2023, o vídeo testando a base da We Pink explodiu. Foi mais que viral — foi um case de marketing: autenticidade gerando alcance.
+No mesmo ano, ele fez as "lives NPC", arrecadou mais de 30 mil reais e doou tudo, mostrando que influência também é impacto.
 
-    // ✅ LOGINS E SENHAS CORRIGIDOS
-    // Usuário (minúsculo, sem espaços) → senha inicial = mesmo nome
-    const DEFAULT_USERS = {
-      minasradiadores: { password: 'minasradiadores' },
-      oito:            { password: 'oito' },
-      marketing:       { password: 'marketing' },
-    };
+Em 2025, lançou o vídeo "Adultização", denunciando a sexualização infantil nas redes. Um conteúdo sério, mas com linguagem acessível — e milhões de visualizações depois, virou debate nacional.
 
-    let REMOTE = { users: {} };
-    let USERS  = {};
+Hoje, Felca é o exemplo de quem usou o conteúdo certo pra construir credibilidade e chegar mais longe.
 
-    function loadSession(){
-      const raw = localStorage.getItem(LS_SESSION);
-      if(!raw) return null;
-      try { return JSON.parse(raw) } catch { return null }
-    }
-    function saveSession(sess){ localStorage.setItem(LS_SESSION, JSON.stringify(sess)); }
+Quer ter uma estratégia de marketing que também te leve além?
+Entre em contato conosco e transforme seu conteúdo em resultado. 🚀`,
+        items: [
+          { title: 'Novo quadro', type: 'tiktok', src: 'https://www.tiktok.com/@andressahcatty/video/7561058461555936524?_r=1&_t=ZM-90uVWl7Alu0' },
+          { title: 'Quebra de bolha', type: 'tiktok', src: 'https://www.tiktok.com/@andressahcatty/video/7561058461555936524?_r=1&_t=ZM-90uVWl7Alu0' },
+          { title: 'Viral', type: 'tiktok', src: 'https://www.tiktok.com/@puringyeon/video/7561141340889713931?_r=1&_t=ZM-90uVY9U3Dg4' }
+        ]
+      },
+      {
+        category: 'Virgínia',
+        description: `Roteiro:Pensa comigo:
+Vini Jr, um dos maiores nomes do futebol mundial.
+Virgínia, uma das maiores influenciadoras e empresárias do Brasil.
+Agora… os dois juntos. Coincidência?
+Desde que assumiram o relacionamento, cada aparição se transforma em notícia, cada curtida gera manchete, e cada vídeo ultrapassa milhões de visualizações.
+O namoro virou pauta, meme, campanha — e o país inteiro comenta.
 
-    /************ REMOTO JSONBIN ************/
-    async function fetchRemote(){
-      const res = await fetch(JSONBIN_URL_LATEST, {
-        headers:{
-          'X-Master-Key': JSONBIN_API_KEY,
-          'Content-Type':'application/json'
-        }
-      });
-      if(!res.ok) throw new Error('Erro ao buscar dados remotos');
-      const data = await res.json();
-      return data.record || { users:{} };
-    }
+Eles unem dois universos diferentes — o futebol e o digital — e criam um império de atenção que movimenta marcas, contratos e audiência internacionais.
+A imagem de ambos se fortalece, e o casal vira produto, tendência e narrativa ao mesmo tempo.
+Será que é um relacionamento reservado… ou uma estratégia muito bem planejada. E você — acha que é amor ou marketing inteligente? 💭`,
+        items: [
+          { title:'Relacionamento Estratégico', type:'tiktok', src:'https://www.tiktok.com/@cardosomundo/video/7559020949639613752?_r=1&_t=ZM-90uVnGF9YU4' },
+          { title:'Romance', type:'tiktok', src:'https://www.tiktok.com/@henrique.carolenske/video/7548948420451372293?_r=1&_t=ZM-90uVo9vxXfk' },
+          { title:'Marketing', type:'tiktok', src:'https://www.tiktok.com/@tabsoliveira/video/7560292359557238027?_r=1&_t=ZM-90uVncGVA4G' }
+        ]
+      },
+      {
+        category: 'Franciny lançamento',
+        description: `Roteiro: Já percebeu que toda vez que a Franciny Ehlke lança um novo produto... é um gloss?
+E isso vem gerando comentários — muita gente acha caro e reclama que ela só aposta no mesmo item.
 
-    async function saveRemote(data){
-      const res = await fetch(JSONBIN_URL, {
-        method:'PUT',
-        headers:{
-          'X-Master-Key': JSONBIN_API_KEY,
-          'Content-Type':'application/json'
-        },
-        body: JSON.stringify(data)
-      });
-      if(!res.ok) throw new Error('Erro ao salvar dados remotos');
-    }
+Mas e se isso for de propósito?
+O gloss é o produto que virou a cara da marca Franciny. É simples, lucrativo e fácil de associar à imagem dela.
+Toda vez que alguém pensa em gloss, lembra da Franciny — e isso é branding puro.
 
-    function seedData(username){
-      return {
-        owner: username,
-        title: `Mural de Vídeos — ${prettyName(username)}`,
-        categories: []
-      };
-    }
+Enquanto outras marcas diversificam, ela repete o que funciona.
+É foco, posicionamento e construção de identidade.
 
-    function ensureDefaultUsers(){
-      if(!REMOTE.users) REMOTE.users = {};
-      for(const u in DEFAULT_USERS){
-        if(!REMOTE.users[u]){
-          REMOTE.users[u] = {
-            password: DEFAULT_USERS[u].password,
-            data: seedData(u)
-          };
-        }
+Mas aí fica a dúvida: será que essa estratégia segura o público por muito tempo…
+ou o brilho do gloss vai começar a perder força? 💄💭`,
+        items: [
+          { title:'Por que só lança gloss', type:'tiktok', src:'https://www.tiktok.com/@ayasquesou/video/7511439379391433989?_r=1&_t=ZM-90uWMQgbu1s' },
+          { title:'Lançamento', type:'tiktok', src:'https://www.tiktok.com/@kimberlyprincesss/video/7564187030465285394?_r=1&_t=ZM-90uWNwcgsF2' },
+          { title:'Canceladakkk', type:'tiktok', src:'https://www.tiktok.com/@matthel/video/7565641101378407698?_r=1&_t=ZM-90uWP2q6tTQ' },
+          { title:'Polêmica', type:'tiktok', src:'https://www.tiktok.com/@mikaellalins2/video/7564926108580302101?_r=1&_t=ZM-90uWQAykzQx' }
+        ]
       }
-      // Garante que USERS sempre reflita todos os usuários remotos
-      USERS = {};
-      for(const u in REMOTE.users){
-        USERS[u] = { password: REMOTE.users[u].password };
-      }
-    }
+    ];
 
-    // ✅ prettyName corrigido para todos os usuários
-    function prettyName(u){
-      const names = {
-        minasradiadores: 'Minasradiadores',
-        oito:            'Oito',
-        marketing:       'Marketing',
-      };
-      return names[u] || u.charAt(0).toUpperCase() + u.slice(1);
-    }
-
-    function uid(){ return Math.random().toString(36).slice(2,9) }
-
-    /************ HELPERS ************/
-    const $  = (sel, root=document) => root.querySelector(sel);
+    const $ = (sel, root=document) => root.querySelector(sel);
     const $$ = (sel, root=document) => [...root.querySelectorAll(sel)];
 
     function youtubeId(url){
@@ -352,6 +317,7 @@
         const m = url.match(/embed\/([\w-]+)/); if(m) return m[1];
       }catch{} return null;
     }
+
     function tiktokId(url){
       try{
         const clean = url.split('?')[0];
@@ -359,6 +325,7 @@
         if(m) return m[1];
       }catch{} return null;
     }
+
     function makeThumb(item){
       if(item.thumb) return item.thumb;
       if(item.type === 'youtube'){
@@ -376,49 +343,10 @@
          </svg>`
       );
     }
-    function escapeHtml(s=''){return s.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
-    function escapeAttr(s=''){return escapeHtml(s).replace(/"/g,'&quot;');}
-    function sel(a,b){ return a===b ? ' selected' : '' }
 
-    /************ ESTADO ************/
-    let CURRENT_USER = null;
-    let DATA = null;
-
-    const heroTitle = $('#heroTitle');
-    const whoami    = $('#whoami');
-    const content   = $('#content');
-    const auth      = $('#auth');
-    const authErr   = $('#authErr');
-    const loginBtn  = $('#loginBtn');
-    const logoutBtn = $('#logoutBtn');
-    const toggleReset = $('#toggleReset');
-    const resetBox  = $('#resetBox');
-
-    function loadDataFor(username){
-      if(!REMOTE.users[username]){
-        REMOTE.users[username] = {
-          password: DEFAULT_USERS[username]?.password || username,
-          data: seedData(username)
-        };
-      }
-      if(!REMOTE.users[username].data){
-        REMOTE.users[username].data = seedData(username);
-      }
-      return REMOTE.users[username].data;
-    }
-
-    async function saveCurrentUserData(){
-      if(!CURRENT_USER) return;
-      REMOTE.users[CURRENT_USER].data = DATA;
-      await saveRemote(REMOTE);
-    }
-
-    /************ UI: TABS, LISTA ************/
     function buildTabs(){
       const tabs = $('#tabs');
-      tabs.innerHTML = '';
-      const names = DATA.categories.map(c=>c.category);
-      const all = names.length ? ['Tudo', ...names] : [];
+      const all = ['Tudo', ...videoData.map(c=>c.category)];
       all.forEach((name,i)=>{
         const b = document.createElement('button');
         b.className = 'tab' + (i===0 ? ' active' : '');
@@ -432,43 +360,17 @@
         tabs.appendChild(b);
       });
     }
-    function filterByTab(tab){
-      const sections = $$('.category');
-      if(tab === 'Tudo'){ sections.forEach(s=>s.classList.remove('hide')); return; }
-      sections.forEach(s=>{ s.classList.toggle('hide', s.dataset.category !== tab); });
-    }
 
-    function cardTemplate(item, catId){
+    function cardTemplate(item){
       const card = document.createElement('article');
       card.className = 'card';
       card.dataset.title = (item.title||'').toLowerCase();
       card.innerHTML = `
-        <div class="card-actions">
-          <button class="icon-btn" data-role="edit" title="Editar">✏️</button>
-          <button class="icon-btn danger" data-role="del" title="Excluir">🗑️</button>
-        </div>
-        <img class="thumb" alt="${escapeHtml(item.title)}" src="${makeThumb(item)}" loading="lazy"/>
+        <img class="thumb" alt="${item.title}" src="${makeThumb(item)}" loading="lazy"/>
         <div class="play"><button>▶︎ Assistir</button></div>
         <div class="dur">${item.duration||''}</div>
-        <div class="meta"><h3 class="title">${escapeHtml(item.title)}</h3></div>`;
-
-      card.addEventListener('click',(e)=>{
-        const role = e.target?.dataset?.role;
-        if(role) return;
-        openModal(item);
-      });
-      card.querySelector('[data-role="edit"]').addEventListener('click', (e)=>{
-        e.stopPropagation();
-        videoDialog(catId, item.id);
-      });
-      card.querySelector('[data-role="del"]').addEventListener('click', (e)=>{
-        e.stopPropagation();
-        deleteVideo(catId, item.id);
-      });
-      card.addEventListener('contextmenu',(e)=>{
-        e.preventDefault();
-        videoDialog(catId, item.id);
-      });
+        <div class="meta"><h3 class="title">${item.title}</h3></div>`;
+      card.addEventListener('click',()=>openModal(item));
       return card;
     }
 
@@ -476,55 +378,35 @@
       const sec = document.createElement('section');
       sec.className = 'category';
       sec.dataset.category = category.category;
-      sec.dataset.id = category.id;
       sec.innerHTML = `
-        <div class="category-head">
-          <h2>${escapeHtml(category.category)}</h2>
-          <div class="category-actions">
-            <button class="btn" data-act="addVideo">+ Vídeo</button>
-            <button class="btn" data-act="editCat">Editar categoria</button>
-            <button class="btn btn-danger" data-act="delCat">Excluir</button>
-          </div>
-        </div>
-        ${category.description ? `<p class="category-desc">${escapeHtml(category.description)}</p>` : '<p class="category-desc muted">Sem roteiro/descrição.</p>'}
+        <div class="category-head"><h2>${category.category}</h2></div>
+        ${category.description ? `<p class="category-desc">${category.description}</p>` : ''}
         <div class="video-grid"></div>`;
       const grid = $('.video-grid', sec);
-
-      if(!category.items.length){
-        const empty = document.createElement('div');
-        empty.className = 'empty';
-        empty.innerHTML = `Nenhum vídeo aqui ainda. Clique em <b>+ Vídeo</b> para adicionar.`;
-        grid.appendChild(empty);
-      } else {
-        category.items.forEach(item=> grid.appendChild(cardTemplate(item, category.id)) );
-      }
-
-      sec.querySelector('[data-act="addVideo"]').addEventListener('click', ()=> videoDialog(category.id, null));
-      sec.querySelector('[data-act="editCat"]').addEventListener('click', ()=> categoryDialog(category.id));
-      sec.querySelector('[data-act="delCat"]').addEventListener('click', ()=> deleteCategory(category.id));
+      category.items.forEach(item=> grid.appendChild(cardTemplate(item)) );
       return sec;
     }
 
     function buildContent(){
-      content.innerHTML='';
-      if(!DATA.categories.length){
-        const empty = document.createElement('div');
-        empty.className = 'empty';
-        empty.innerHTML = `Seu mural está vazio. Clique em <b>+ Categoria</b> para começar.`;
-        content.appendChild(empty);
-        return;
-      }
-      DATA.categories.forEach(cat=> content.appendChild(sectionTemplate(cat)) );
+      const main = $('#content');
+      main.innerHTML='';
+      videoData.forEach(cat=> main.appendChild(sectionTemplate(cat)) );
     }
 
-    /************ MODAL PLAYER ************/
-    const modal     = $('#modal');
+    function filterByTab(tab){
+      const sections = $$('.category');
+      if(tab === 'Tudo'){ sections.forEach(s=>s.classList.remove('hide')); return; }
+      sections.forEach(s=>{ s.classList.toggle('hide', s.dataset.category !== tab); });
+    }
+
+    const modal = $('#modal');
     const modalBody = $('#modalBody');
-    const modalTitle= $('#modalTitle');
+    const modalTitle = $('#modalTitle');
 
     function openModal(item){
       modalTitle.textContent = item.title || 'Reproduzindo';
       modal.classList.add('open');
+      document.body.style.overflow = 'hidden'; // evita scroll do fundo
       modalBody.classList.remove('tiktok');
       modalBody.innerHTML = '';
 
@@ -550,14 +432,17 @@
       } else if(item.type === 'tiktok'){
         const id = tiktokId(item.src);
         const canonical = id ? item.src.split('?')[0] : item.src;
+
         const wrap = document.createElement('blockquote');
         wrap.className = 'tiktok-embed';
         wrap.setAttribute('cite', canonical);
         if(id) wrap.setAttribute('data-video-id', id);
         wrap.style = 'max-width: 605px; min-width: 325px; margin:auto;';
         wrap.innerHTML = '<section></section>';
+
         modalBody.classList.add('tiktok');
         modalBody.appendChild(wrap);
+
         const s = document.createElement('script');
         s.async = true;
         s.src = 'https://www.tiktok.com/embed.js';
@@ -572,274 +457,29 @@
         modalBody.appendChild(video);
       }
     }
+
     function closeModal(){
       modal.classList.remove('open');
       modalBody.classList.remove('tiktok');
       modalBody.innerHTML = '';
+      document.body.style.overflow = ''; // restaura scroll
     }
+
     modal.addEventListener('click', (e)=>{ if(e.target === modal) closeModal(); });
     $('#modalClose').addEventListener('click', closeModal);
-    window.addEventListener('keydown', (e)=>{ if(e.key==='Escape' && modal.classList.contains('open')) closeModal(); });
 
-    /************ DIALOG ************/
-    const dialog     = $('#dialog');
-    const dialogCard = $('#dialogCard');
-    function openDialog(html){ dialogCard.innerHTML = html; dialog.classList.remove('hide'); }
-    function closeDialog(){ dialog.classList.add('hide'); dialogCard.innerHTML=''; }
-    dialog.addEventListener('click', (e)=>{ if(e.target===dialog) closeDialog(); });
+    buildTabs();
+    buildContent();
 
-    /************ CATEGORIA ************/
-    function categoryDialog(catId){
-      const cat = DATA.categories.find(c=>c.id===catId);
-      if(!cat) return;
-      openDialog(`
-        <h3>Editar categoria</h3>
-        <div class="field"><label>Nome da categoria</label>
-          <input id="fCatName" class="input" value="${escapeAttr(cat.category)}"></div>
-        <div class="field"><label>Roteiro/descrição</label>
-          <textarea id="fCatDesc" class="input" rows="6">${escapeHtml(cat.description||'')}</textarea></div>
-        <div class="row">
-          <button class="btn" id="saveCat">Salvar</button>
-          <button class="btn btn-danger" id="cancelCat">Cancelar</button>
-        </div>
-      `);
-      $('#saveCat').addEventListener('click', async ()=>{
-        cat.category = $('#fCatName').value.trim() || 'Sem nome';
-        cat.description = $('#fCatDesc').value;
-        await saveCurrentUserData();
-        refreshAll();
-        closeDialog();
-      });
-      $('#cancelCat').addEventListener('click', closeDialog);
-    }
-
-    function deleteCategory(catId){
-      if(!confirm('Excluir esta categoria e todos os vídeos?')) return;
-      DATA.categories = DATA.categories.filter(c=>c.id!==catId);
-      saveCurrentUserData().then(refreshAll);
-    }
-
-    function addCategory(){
-      openDialog(`
-        <h3>Nova categoria</h3>
-        <div class="field"><label>Nome</label><input id="nCatName" class="input" placeholder="Ex.: Vlog, Trends, Tutoriais"></div>
-        <div class="field"><label>Roteiro/descrição</label><textarea id="nCatDesc" class="input" rows="5" placeholder="Breve roteiro/ideias da categoria"></textarea></div>
-        <div class="row">
-          <button class="btn" id="createCat">Criar</button>
-          <button class="btn btn-danger" id="cancelNewCat">Cancelar</button>
-        </div>
-      `);
-      $('#createCat').addEventListener('click', async ()=>{
-        const name = $('#nCatName').value.trim() || 'Nova categoria';
-        const desc = $('#nCatDesc').value;
-        DATA.categories.push({ id: uid(), category: name, description: desc, items: [] });
-        await saveCurrentUserData();
-        refreshAll();
-        closeDialog();
-      });
-      $('#cancelNewCat').addEventListener('click', closeDialog);
-    }
-
-    /************ VÍDEO ************/
-    function videoDialog(catId, videoId){
-      const cat = DATA.categories.find(c=>c.id===catId);
-      if(!cat) return;
-      const existing = videoId ? cat.items.find(v=>v.id===videoId) : null;
-      openDialog(`
-        <h3>${existing?'Editar':'Novo'} vídeo</h3>
-        <div class="field"><label>Título</label><input id="vTitle" class="input" value="${escapeAttr(existing?.title||'')}"></div>
-        <div class="field"><label>Tipo</label>
-          <select id="vType" class="input">
-            <option value="tiktok"${sel(existing?.type,'tiktok')}>TikTok</option>
-            <option value="youtube"${sel(existing?.type,'youtube')}>YouTube</option>
-            <option value="vimeo"${sel(existing?.type,'vimeo')}>Vimeo</option>
-            <option value="mp4"${sel(existing?.type,'mp4')}>MP4 (link)</option>
-          </select>
-        </div>
-        <div class="field"><label>Link (URL)</label><input id="vSrc" class="input" value="${escapeAttr(existing?.src||'')}" placeholder="https://..."></div>
-        <div class="field"><label>Duração (opcional)</label><input id="vDur" class="input" value="${escapeAttr(existing?.duration||'')}"></div>
-        <div class="field"><label>Thumb (opcional)</label><input id="vThumb" class="input" value="${escapeAttr(existing?.thumb||'')}" placeholder="URL da miniatura"></div>
-        <div class="row">
-          <button class="btn" id="saveVid">${existing?'Salvar':'Adicionar'}</button>
-          ${existing?'<button class="btn btn-danger" id="delVid">Excluir</button>':''}
-          <button class="btn btn-danger" id="cancelVid">Cancelar</button>
-        </div>
-        <p class="small muted">Dica: clique no ícone <b>🗑️</b> no card para excluir rapidamente.</p>
-      `);
-      $('#saveVid').addEventListener('click', async ()=>{
-        const item = {
-          id: existing?.id || uid(),
-          title: $('#vTitle').value.trim() || 'Sem título',
-          type: $('#vType').value,
-          src: $('#vSrc').value.trim(),
-          duration: $('#vDur').value.trim(),
-          thumb: $('#vThumb').value.trim() || undefined
-        };
-        if(existing){
-          const idx = cat.items.findIndex(v=>v.id===existing.id);
-          cat.items[idx] = item;
-        } else {
-          cat.items.push(item);
-        }
-        await saveCurrentUserData();
-        refreshAll();
-        closeDialog();
-      });
-      $('#cancelVid').addEventListener('click', closeDialog);
-      if(existing){
-        $('#delVid').addEventListener('click', async ()=>{
-          await deleteVideo(catId, existing.id, true);
-        });
-      }
-    }
-
-    async function deleteVideo(catId, videoId, silentClose=false){
-      const cat = DATA.categories.find(c=>c.id===catId);
-      if(!cat) return;
-      if(!confirm('Excluir este vídeo específico?')) return;
-      cat.items = cat.items.filter(v=>v.id!==videoId);
-      await saveCurrentUserData();
-      refreshAll();
-      if(silentClose) closeDialog();
-    }
-
-    /************ LOGIN ************/
-    function showAuth(){
-      auth.classList.remove('hide');
-      whoami.textContent = 'Desconectado';
-      $('#heroSub').textContent = 'Faça login para ver e editar seu mural (salvo na nuvem)';
-    }
-    function hideAuth(){ auth.classList.add('hide'); }
-
-    loginBtn.addEventListener('click', handleLogin);
-
-    // ✅ Login corrigido: aceita o nome do usuário em qualquer capitalização
-    async function handleLogin(){
-      const u = $('#username').value.trim().toLowerCase();
-      const p = $('#password').value;
-      const userObj = USERS[u];
-      const ok = userObj && typeof userObj.password === 'string' && userObj.password === p;
-      if(!ok){
-        authErr.style.display = 'block';
-        authErr.textContent = 'Usuário ou senha inválidos. Usuários disponíveis: minasradiadores, oito, marketing. Senha inicial = nome do usuário.';
-        return;
-      }
-      authErr.style.display = 'none';
-      saveSession({ username: u });
-      await afterLogin(u);
-    }
-
-    async function afterLogin(username){
-      CURRENT_USER = username;
-      DATA = loadDataFor(CURRENT_USER);
-      hideAuth();
-      whoami.textContent = `Logado: ${prettyName(CURRENT_USER)}`;
-      heroTitle.textContent = DATA?.title || `Mural de Vídeos — ${prettyName(CURRENT_USER)}`;
-      refreshAll();
-    }
-
-    logoutBtn.addEventListener('click', ()=>{
-      localStorage.removeItem(LS_SESSION);
-      CURRENT_USER = null;
-      DATA = null;
-      showAuth();
-      content.innerHTML = '';
-      $('#tabs').innerHTML = '';
-    });
-
-    toggleReset.addEventListener('click', ()=>{
-      resetBox.classList.toggle('hide');
-      const btn = resetBox.querySelector('button');
-      btn.onclick = async ()=>{
-        const u  = $('#username').value.trim().toLowerCase();
-        const old= $('#password').value;
-        const np = $('#newpass').value.trim();
-        if(!REMOTE.users[u]){ alert('Informe primeiro o usuário correto.'); return; }
-        if(REMOTE.users[u].password !== old){ alert('Senha atual incorreta.'); return; }
-        if(np.length < 4){ alert('Senha muito curta (mínimo 4 caracteres).'); return; }
-        REMOTE.users[u].password = np;
-        USERS[u].password = np;
-        await saveRemote(REMOTE);
-        alert('Senha alterada com sucesso!');
-        resetBox.classList.add('hide');
-      };
-    });
-
-    /************ IMPORT / EXPORT / TEMA ************/
-    $('#exportBtn').addEventListener('click', ()=>{
-      if(!DATA){ alert('Nenhum usuário logado.'); return; }
-      const blob = new Blob([JSON.stringify(DATA, null, 2)], {type:'application/json'});
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = `mural_${CURRENT_USER}.json`;
-      a.click();
-      URL.revokeObjectURL(a.href);
-    });
-
-    $('#importBtn').addEventListener('click', ()=>{
-      if(!CURRENT_USER){ alert('Faça login antes de importar.'); return; }
-      openDialog(`
-        <h3>Importar JSON</h3>
-        <p class="small muted">Isso <b>substitui</b> seus dados atuais desta conta.</p>
-        <input type="file" id="fileIn" accept="application/json" class="input">
-        <div class="row" style="margin-top:10px;">
-          <button class="btn" id="doImport">Importar</button>
-          <button class="btn btn-danger" id="cancelImport">Cancelar</button>
-        </div>
-      `);
-      $('#cancelImport').addEventListener('click', closeDialog);
-      $('#doImport').addEventListener('click', ()=>{
-        const f = $('#fileIn').files[0];
-        if(!f){ alert('Selecione um arquivo .json'); return; }
-        const reader = new FileReader();
-        reader.onload = async ()=>{
-          try{
-            const obj = JSON.parse(reader.result);
-            if(!obj || !Array.isArray(obj.categories)) throw new Error('Formato inválido');
-            DATA = obj;
-            await saveCurrentUserData();
-            refreshAll();
-            closeDialog();
-          }catch(e){
-            alert('JSON inválido: ' + e.message);
-          }
-        };
-        reader.readAsText(f);
-      });
-    });
-
-    const modeBtn    = $('#mode');
-    const savedTheme = localStorage.getItem(THEME_KEY);
-    if(savedTheme === 'light') document.body.classList.add('light');
+    const modeBtn = $('#mode');
+    const saved = localStorage.getItem('mural:mode');
+    if(saved === 'light') document.body.classList.add('light');
     modeBtn.addEventListener('click', ()=>{
       document.body.classList.toggle('light');
-      localStorage.setItem(THEME_KEY, document.body.classList.contains('light') ? 'light' : 'dark');
+      localStorage.setItem('mural:mode', document.body.classList.contains('light') ? 'light' : 'dark');
     });
 
-    $('#addCatBtn').addEventListener('click', addCategory);
-
-    function refreshAll(){
-      buildTabs();
-      buildContent();
-    }
-
-    /************ INIT ************/
-    (async function init(){
-      try{
-        REMOTE = await fetchRemote();
-      }catch(e){
-        console.error(e);
-        REMOTE = { users:{} };
-      }
-      ensureDefaultUsers();
-
-      const sess = loadSession();
-      if(sess && USERS[sess.username]){
-        await afterLogin(sess.username);
-      }else{
-        showAuth();
-      }
-    })();
+    window.addEventListener('keydown', (e)=>{ if(e.key==='Escape' && modal.classList.contains('open')) closeModal(); });
   </script>
 </body>
 </html>
