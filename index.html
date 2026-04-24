@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Mural de Vídeos — Login</title>
-  <meta name="description" content="Mural de vídeos com login por usuário (bella, analuisa, gio e ana), categorias e vídeos salvos por conta na nuvem." />
+  <title>Mural de Vídeos</title>
+  <meta name="description" content="Mural de vídeos por categorias com dados salvos na nuvem." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -136,14 +136,14 @@
     body.light .card{border-color:#eef0f6;background:#fff}
     body.light .dur{background:rgba(255,255,255,.9);color:#0a0b10;border-color:#e7e9ef}
 
-    .auth{
+    .auth-overlay{
       position:fixed;inset:0;display:grid;place-items:center;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);z-index:200;
     }
     .auth-card{
       width:min(460px,92vw);background:#0f1118;border:1px solid rgba(255,255,255,.08);
       border-radius:16px;box-shadow:var(--shadow);padding:22px;
     }
-    .auth h2{margin:6px 0 12px}
+    .auth-card h2{margin:6px 0 12px}
     .field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
     .field label{font-size:13px;color:#cfd6e6}
     .input{
@@ -152,7 +152,6 @@
     }
     .row{display:flex;gap:10px;align-items:center;justify-content:space-between}
     .small{font-size:12px;color:var(--muted)}
-    .error{color:#ffd4d4;background:#341d1d;border:1px solid #5a2b2b;padding:8px 10px;border-radius:10px;margin-bottom:10px}
 
     .editor-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:10px 6px;margin:8px 0 0;}
     .chip{padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);font-size:12px}
@@ -172,12 +171,10 @@
         <div>
           <div class="badge">🎬 Mural de Vídeos</div>
           <h1 class="hero-title" id="heroTitle">Mural de Vídeos</h1>
-          <p class="hero-sub" id="heroSub">Vídeos por categorias — dados salvos na conta (nuvem)</p>
+          <p class="hero-sub" id="heroSub">Vídeos por categorias — dados salvos na nuvem</p>
         </div>
         <div class="row">
           <button class="btn" id="mode" title="Alternar tema">🌓 Tema</button>
-          <span class="chip muted" id="whoami">Desconectado</span>
-          <button class="btn" id="logoutBtn">Sair</button>
         </div>
       </div>
     </header>
@@ -186,7 +183,6 @@
       <div class="controls-inner container">
         <div class="tabs" id="tabs"></div>
         <div class="editor-bar" id="editorBar">
-          <span class="chip">✏️ Modo edição</span>
           <button class="btn" id="addCatBtn">+ Categoria</button>
           <span class="sep">|</span>
           <button class="btn" id="exportBtn">⬇️ Exportar JSON</button>
@@ -196,7 +192,7 @@
     </div>
 
     <main id="content"></main>
-    <footer>Dados salvos na nuvem por usuário</footer>
+    <footer>Dados salvos na nuvem</footer>
   </div>
 
   <!-- Modal Player -->
@@ -210,39 +206,8 @@
     </div>
   </div>
 
-  <!-- Auth -->
-  <div class="auth" id="auth">
-    <div class="auth-card">
-      <h2>Entrar no Mural</h2>
-      <p class="small">
-        Usuários permitidos: <b>Minasradiadores</b>, <b>Oito</b>.
-        (senha inicial = mesmo nome)
-      </p>
-      <div class="error" id="authErr" style="display:none"></div>
-      <div class="field">
-        <label for="username">Usuário</label>
-        <input id="username" class="input" placeholder="minasradiadores / oito" autocomplete="username">
-      </div>
-      <div class="field">
-        <label for="password">Senha</label>
-        <input id="password" type="password" class="input" placeholder="sua senha" autocomplete="current-password">
-      </div>
-      <div class="row">
-        <button class="btn" id="loginBtn">Entrar</button>
-        <button class="btn" id="toggleReset">Trocar senha</button>
-      </div>
-      <div id="resetBox" class="hide">
-        <div class="field" style="margin-top:10px;">
-          <label for="newpass">Nova senha</label>
-          <input id="newpass" type="password" class="input" placeholder="mín. 4 caracteres" autocomplete="new-password">
-        </div>
-        <button class="btn">Salvar nova senha</button>
-      </div>
-    </div>
-  </div>
-
   <!-- Dialog -->
-  <div class="auth hide" id="dialog">
+  <div class="auth-overlay hide" id="dialog">
     <div class="auth-card" id="dialogCard"></div>
   </div>
 
@@ -250,32 +215,16 @@
     /****************************************************
      * CONFIG JSONBIN
      ****************************************************/
- const JSONBIN_API_KEY = '$2a$10$pU.kMmDPkoBYyIXmAAD7RunfNsqNUitnI3lu4hm/jN2MrZA.T7Fvq';
+    const JSONBIN_API_KEY = '$2a$10$pU.kMmDPkoBYyIXmAAD7RunfNsqNUitnI3lu4hm/jN2MrZA.T7Fvq';
     const JSONBIN_BIN_ID  = '69171e32ae596e708f58b63d';
 
     const JSONBIN_URL_LATEST = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`;
     const JSONBIN_URL        = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
 
-    /************ ARMAZENAMENTO LOCAL (só sessão/tema) ************/
-    const LS_SESSION = 'mural:session:v1';
-    const THEME_KEY  = 'mural:mode';
+    const THEME_KEY = 'mural:mode';
 
-    const DEFAULT_USERS = {
-      minasradiadores:    { password: 'minasradiadores' },
-      oito: { password: 'oito' },
-      marketing:      { password: 'marketing' },
-
-    };
-
-    let REMOTE = { users: {} };
-    let USERS  = {};
-
-    function loadSession(){
-      const raw = localStorage.getItem(LS_SESSION);
-      if(!raw) return null;
-      try { return JSON.parse(raw) } catch { return null }
-    }
-    function saveSession(sess){ localStorage.setItem(LS_SESSION, JSON.stringify(sess)); }
+    let REMOTE = { data: { title: 'Mural de Vídeos', categories: [] } };
+    let DATA   = null;
 
     /************ REMOTO JSONBIN ************/
     async function fetchRemote(){
@@ -285,56 +234,28 @@
           'Content-Type':'application/json'
         }
       });
-      if(!res.ok){
-        throw new Error('Erro ao buscar dados remotos');
-      }
-      const data = await res.json();
-      return data.record || { users:{} };
+      if(!res.ok) throw new Error('Erro ao buscar dados remotos');
+      const json = await res.json();
+      return json.record || { data: { title: 'Mural de Vídeos', categories: [] } };
     }
 
-    async function saveRemote(data){
+    async function saveRemote(record){
       const res = await fetch(JSONBIN_URL, {
         method:'PUT',
         headers:{
           'X-Master-Key': JSONBIN_API_KEY,
           'Content-Type':'application/json'
         },
-        body: JSON.stringify(data)
+        body: JSON.stringify(record)
       });
-      if(!res.ok){
-        throw new Error('Erro ao salvar dados remotos');
-      }
+      if(!res.ok) throw new Error('Erro ao salvar dados remotos');
     }
 
-    function seedData(username){
-      return {
-        owner: username,
-        title: `Mural de Vídeos — ${prettyName(username)}`,
-        categories: []
-      };
+    async function saveData(){
+      REMOTE.data = DATA;
+      await saveRemote(REMOTE);
     }
 
-    function ensureDefaultUsers(){
-      if(!REMOTE.users) REMOTE.users = {};
-      for(const u in DEFAULT_USERS){
-        if(!REMOTE.users[u]){
-          REMOTE.users[u] = {
-            password: DEFAULT_USERS[u].password,
-            data: seedData(u)
-          };
-        }
-      }
-      USERS = {};
-      for(const u in REMOTE.users){
-        USERS[u] = { password: REMOTE.users[u].password };
-      }
-    }
-
-    function prettyName(u){
-      if(u==='minasradiadores') return 'Minasradiadores';
-      if(u==='oito') return 'Oito';
-      return u;
-    }
     function uid(){ return Math.random().toString(36).slice(2,9) }
 
     /************ HELPERS ************/
@@ -373,44 +294,14 @@
          </svg>`
       );
     }
-    function escapeHtml(s=''){return s.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
-    function escapeAttr(s=''){return escapeHtml(s).replace(/"/g,'&quot;');}
+    function escapeHtml(s=''){ return s.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+    function escapeAttr(s=''){ return escapeHtml(s).replace(/"/g,'&quot;'); }
     function sel(a,b){ return a===b ? ' selected' : '' }
 
-    /************ ESTADO ************/
-    let CURRENT_USER = null;
-    let DATA = null;
-
+    /************ UI ************/
     const heroTitle = $('#heroTitle');
-    const whoami    = $('#whoami');
     const content   = $('#content');
-    const auth      = $('#auth');
-    const authErr   = $('#authErr');
-    const loginBtn  = $('#loginBtn');
-    const logoutBtn = $('#logoutBtn');
-    const toggleReset = $('#toggleReset');
-    const resetBox  = $('#resetBox');
 
-    function loadDataFor(username){
-      if(!REMOTE.users[username]){
-        REMOTE.users[username] = {
-          password: DEFAULT_USERS[username]?.password || username,
-          data: seedData(username)
-        };
-      }
-      if(!REMOTE.users[username].data){
-        REMOTE.users[username].data = seedData(username);
-      }
-      return REMOTE.users[username].data;
-    }
-
-    async function saveCurrentUserData(){
-      if(!CURRENT_USER) return;
-      REMOTE.users[CURRENT_USER].data = DATA;
-      await saveRemote(REMOTE);
-    }
-
-    /************ UI: TABS, LISTA ************/
     function buildTabs(){
       const tabs = $('#tabs');
       tabs.innerHTML = '';
@@ -429,6 +320,7 @@
         tabs.appendChild(b);
       });
     }
+
     function filterByTab(tab){
       const sections = $$('.category');
       if(tab === 'Tudo'){ sections.forEach(s=>s.classList.remove('hide')); return; }
@@ -454,17 +346,14 @@
         if(role) return;
         openModal(item);
       });
-
       card.querySelector('[data-role="edit"]').addEventListener('click', (e)=>{
         e.stopPropagation();
         videoDialog(catId, item.id);
       });
-
       card.querySelector('[data-role="del"]').addEventListener('click', (e)=>{
         e.stopPropagation();
         deleteVideo(catId, item.id);
       });
-
       card.addEventListener('contextmenu',(e)=>{
         e.preventDefault();
         videoDialog(catId, item.id);
@@ -496,7 +385,7 @@
         empty.innerHTML = `Nenhum vídeo aqui ainda. Clique em <b>+ Vídeo</b> para adicionar.`;
         grid.appendChild(empty);
       } else {
-        category.items.forEach(item=> grid.appendChild(cardTemplate(item, category.id)) );
+        category.items.forEach(item=> grid.appendChild(cardTemplate(item, category.id)));
       }
 
       sec.querySelector('[data-act="addVideo"]').addEventListener('click', ()=> videoDialog(category.id, null));
@@ -514,7 +403,7 @@
         content.appendChild(empty);
         return;
       }
-      DATA.categories.forEach(cat=> content.appendChild(sectionTemplate(cat)) );
+      DATA.categories.forEach(cat=> content.appendChild(sectionTemplate(cat)));
     }
 
     /************ MODAL PLAYER ************/
@@ -550,17 +439,14 @@
       } else if(item.type === 'tiktok'){
         const id = tiktokId(item.src);
         const canonical = id ? item.src.split('?')[0] : item.src;
-
         const wrap = document.createElement('blockquote');
         wrap.className = 'tiktok-embed';
         wrap.setAttribute('cite', canonical);
         if(id) wrap.setAttribute('data-video-id', id);
         wrap.style = 'max-width: 605px; min-width: 325px; margin:auto;';
         wrap.innerHTML = '<section></section>';
-
         modalBody.classList.add('tiktok');
         modalBody.appendChild(wrap);
-
         const s = document.createElement('script');
         s.async = true;
         s.src = 'https://www.tiktok.com/embed.js';
@@ -575,6 +461,7 @@
         modalBody.appendChild(video);
       }
     }
+
     function closeModal(){
       modal.classList.remove('open');
       modalBody.classList.remove('tiktok');
@@ -609,7 +496,7 @@
       $('#saveCat').addEventListener('click', async ()=>{
         cat.category = $('#fCatName').value.trim() || 'Sem nome';
         cat.description = $('#fCatDesc').value;
-        await saveCurrentUserData();
+        await saveData();
         refreshAll();
         closeDialog();
       });
@@ -619,7 +506,7 @@
     function deleteCategory(catId){
       if(!confirm('Excluir esta categoria e todos os vídeos?')) return;
       DATA.categories = DATA.categories.filter(c=>c.id!==catId);
-      saveCurrentUserData().then(refreshAll);
+      saveData().then(refreshAll);
     }
 
     function addCategory(){
@@ -636,7 +523,7 @@
         const name = $('#nCatName').value.trim() || 'Nova categoria';
         const desc = $('#nCatDesc').value;
         DATA.categories.push({ id: uid(), category: name, description: desc, items: [] });
-        await saveCurrentUserData();
+        await saveData();
         refreshAll();
         closeDialog();
       });
@@ -684,7 +571,7 @@
         } else {
           cat.items.push(item);
         }
-        await saveCurrentUserData();
+        await saveData();
         refreshAll();
         closeDialog();
       });
@@ -701,86 +588,25 @@
       if(!cat) return;
       if(!confirm('Excluir este vídeo específico?')) return;
       cat.items = cat.items.filter(v=>v.id!==videoId);
-      await saveCurrentUserData();
+      await saveData();
       refreshAll();
       if(silentClose) closeDialog();
     }
 
-    /************ LOGIN ************/
-    function showAuth(){
-      auth.classList.remove('hide');
-      whoami.textContent = 'Desconectado';
-      $('#heroSub').textContent = 'Faça login para ver e editar seu mural (salvo na nuvem)';
-    }
-    function hideAuth(){ auth.classList.add('hide'); }
-
-    loginBtn.addEventListener('click', handleLogin);
-    async function handleLogin(){
-      const u = $('#username').value.trim().toLowerCase();
-      const p = $('#password').value;
-      const userObj = USERS[u];
-      const ok = userObj && typeof userObj.password === 'string' && userObj.password === p;
-      if(!ok){
-        authErr.style.display='block';
-        authErr.textContent = 'Usuário ou senha inválidos. (permitidos: minas radiadores / oito; senha inicial = mesmo nome)';
-        return;
-      }
-      saveSession({ username: u });
-      await afterLogin(u);
-    }
-
-    async function afterLogin(username){
-      CURRENT_USER = username;
-      DATA = loadDataFor(CURRENT_USER);
-      hideAuth();
-      whoami.textContent = `Logado: ${prettyName(CURRENT_USER)}`;
-      heroTitle.textContent = DATA?.title || `Mural de Vídeos — ${prettyName(CURRENT_USER)}`;
-      refreshAll();
-    }
-
-    logoutBtn.addEventListener('click', ()=>{
-      localStorage.removeItem(LS_SESSION);
-      CURRENT_USER = null;
-      DATA = null;
-      showAuth();
-      content.innerHTML = '';
-      $('#tabs').innerHTML = '';
-    });
-
-    toggleReset.addEventListener('click', ()=>{
-      resetBox.classList.toggle('hide');
-      const btn = resetBox.querySelector('button');
-      btn.onclick = async ()=>{
-        const u  = $('#username').value.trim().toLowerCase();
-        const old= $('#password').value;
-        const np = $('#newpass').value.trim();
-        if(!REMOTE.users[u]){ alert('Informe primeiro o usuário correto.'); return; }
-        if(REMOTE.users[u].password !== old){ alert('Senha atual incorreta.'); return; }
-        if(np.length < 4){ alert('Senha muito curta.'); return; }
-        REMOTE.users[u].password = np;
-        USERS[u].password = np;
-        await saveRemote(REMOTE);
-        alert('Senha alterada!');
-        resetBox.classList.add('hide');
-      };
-    });
-
     /************ IMPORT / EXPORT / TEMA ************/
     $('#exportBtn').addEventListener('click', ()=>{
-      if(!DATA){ alert('Nenhum usuário logado.'); return; }
       const blob = new Blob([JSON.stringify(DATA, null, 2)], {type:'application/json'});
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = `mural_${CURRENT_USER}.json`;
+      a.download = `mural.json`;
       a.click();
       URL.revokeObjectURL(a.href);
     });
 
     $('#importBtn').addEventListener('click', ()=>{
-      if(!CURRENT_USER){ alert('Faça login antes de importar.'); return; }
       openDialog(`
         <h3>Importar JSON</h3>
-        <p class="small muted">Isso <b>substitui</b> seus dados atuais desta conta.</p>
+        <p class="small muted">Isso <b>substitui</b> todos os dados atuais do mural.</p>
         <input type="file" id="fileIn" accept="application/json" class="input">
         <div class="row" style="margin-top:10px;">
           <button class="btn" id="doImport">Importar</button>
@@ -797,7 +623,7 @@
             const obj = JSON.parse(reader.result);
             if(!obj || !Array.isArray(obj.categories)) throw new Error('Formato inválido');
             DATA = obj;
-            await saveCurrentUserData();
+            await saveData();
             refreshAll();
             closeDialog();
           }catch(e){
@@ -808,8 +634,8 @@
       });
     });
 
-    const modeBtn   = $('#mode');
-    const savedTheme= localStorage.getItem(THEME_KEY);
+    const modeBtn    = $('#mode');
+    const savedTheme = localStorage.getItem(THEME_KEY);
     if(savedTheme === 'light') document.body.classList.add('light');
     modeBtn.addEventListener('click', ()=>{
       document.body.classList.toggle('light');
@@ -827,18 +653,22 @@
     (async function init(){
       try{
         REMOTE = await fetchRemote();
+        // Migração: se ainda existir estrutura antiga com "users", extrai dados do primeiro usuário
+        if(!REMOTE.data && REMOTE.users){
+          const firstUser = Object.values(REMOTE.users)[0];
+          REMOTE.data = firstUser?.data || { title: 'Mural de Vídeos', categories: [] };
+        }
+        if(!REMOTE.data){
+          REMOTE.data = { title: 'Mural de Vídeos', categories: [] };
+        }
       }catch(e){
         console.error(e);
-        REMOTE = { users:{} };
+        REMOTE = { data: { title: 'Mural de Vídeos', categories: [] } };
       }
-      ensureDefaultUsers();
 
-      const sess = loadSession();
-      if(sess && USERS[sess.username]){
-        await afterLogin(sess.username);
-      }else{
-        showAuth();
-      }
+      DATA = REMOTE.data;
+      heroTitle.textContent = DATA.title || 'Mural de Vídeos';
+      refreshAll();
     })();
   </script>
 </body>
