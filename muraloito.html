@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mural de Vídeos — Login</title>
+  <meta name="description" content="Mural de vídeos com login por usuário (bella, analuisa, gio e ana), categorias e vídeos salvos por conta na nuvem." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#0b0b10;
+      --card:#12121a;
+      --muted:#9aa3b2;
+      --text:#e6e8ec;
+      --accent:#7c5cff;
+      --accent-2:#19d6b3;
+      --ring:rgba(124,92,255,.35);
+      --shadow:0 10px 30px rgba(0,0,0,.35);
+      --radius-xl:18px;
+      --radius-lg:14px;
+      --radius-md:12px;
+      --danger:#ff6b6b;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(1200px 600px at 90% -10%,rgba(124,92,255,.15),transparent 70%),
+        radial-gradient(900px 500px at -10% 20%,rgba(25,214,179,.12),transparent 70%),
+        var(--bg);
+    }
+    a{color:inherit;text-decoration:none}
+    .container{width:min(1200px,92vw);margin-inline:auto}
+
+    header.hero{
+      position:relative;overflow:hidden;margin:24px 0 14px;
+      border-radius:var(--radius-xl);
+      background:linear-gradient(135deg,rgba(124,92,255,.18),rgba(25,214,179,.18));
+      border:1px solid rgba(255,255,255,.06);
+      box-shadow:var(--shadow);
+    }
+    .hero-inner{display:flex;align-items:center;justify-content:space-between;gap:28px;padding:32px 28px 28px}
+    .hero-title{font-size:clamp(20px,4vw,32px);font-weight:700;letter-spacing:.2px}
+    .hero-sub{color:var(--muted);max-width:72ch;margin-top:6px}
+    .badge{
+      display:inline-flex;gap:8px;align-items:center;
+      background:rgba(255,255,255,.06);padding:8px 12px;border-radius:999px;
+      font-size:12px;color:#cfd6e6;border:1px solid rgba(255,255,255,.08)
+    }
+
+    .controls{position:sticky;top:0;z-index:50;background:transparent}
+    .controls-inner{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:14px 4px}
+    .tabs{display:flex;flex-wrap:wrap;gap:10px}
+    .tab{
+      border:1px solid rgba(255,255,255,.08);background:var(--card);
+      padding:10px 14px;border-radius:12px;cursor:pointer;
+      font-weight:600;color:#dfe4ef;opacity:.9;transition:transform .15s ease,opacity .15s ease, box-shadow .2s ease;
+    }
+    .tab:hover{opacity:1;transform:translateY(-1px)}
+    .tab.active{outline:2px solid var(--ring);box-shadow:0 0 0 6px rgba(124,92,255,.08)}
+
+    section.category{margin:22px 0 32px}
+    .category-head{display:flex;align-items:center;justify-content:space-between;margin:10px 6px 8px}
+    .category h2{font-size:clamp(18px,3vw,24px);margin:0}
+    .category-actions{display:flex;gap:8px}
+    .btn{
+      all:unset;cursor:pointer;
+      padding:8px 10px;border-radius:10px;
+      background:var(--card);border:1px solid rgba(255,255,255,.08);
+      font-size:13px;font-weight:600;color:#e9ecf7;
+    }
+    .btn:hover{outline:2px solid var(--ring)}
+    .btn-danger{background:#251619;border-color:#4a2323;color:#ffd4d4}
+    .btn-danger:hover{outline:2px solid rgba(255,107,107,.35)}
+
+    .category-desc{
+      margin:0 6px 12px;color:var(--muted);line-height:1.5;font-size:14px;max-width:80ch;white-space:pre-wrap;
+    }
+
+    .video-grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
+    .card{
+      position:relative;overflow:hidden;border-radius:var(--radius-lg);
+      background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02));
+      border:1px solid rgba(255,255,255,.06);box-shadow:var(--shadow);
+      transition:transform .18s ease, box-shadow .2s ease,border-color .2s ease;
+    }
+    .card:hover{transform:translateY(-3px);box-shadow:0 14px 46px rgba(0,0,0,.45);border-color:rgba(255,255,255,.12)}
+    .thumb{aspect-ratio:16/9;display:block;width:100%;object-fit:cover;background:#0f1220}
+    .meta{padding:10px 12px 12px}
+    .title{font-size:14px;font-weight:600;line-height:1.35;margin:0 0 6px;color:#e9ecf7}
+
+    .dur{position:absolute;right:10px;bottom:52px;background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.16);font-size:12px;padding:4px 8px;border-radius:999px;color:#eaf0ff}
+    .play{
+      position:absolute;inset:0;display:grid;place-items:center;opacity:0;transition:opacity .2s ease;
+      background:linear-gradient(180deg,rgba(0,0,0,0) 20%,rgba(0,0,0,.35));
+    }
+    .card:hover .play{opacity:1}
+    .play button{cursor:pointer;border:none;padding:12px 16px;border-radius:999px;font-weight:700;
+      background:linear-gradient(135deg,var(--accent),var(--accent-2));color:white;box-shadow:0 8px 26px rgba(124,92,255,.4)}
+
+    .card-actions{
+      position:absolute;right:8px;top:8px;display:flex;gap:6px;z-index:2;
+    }
+    .icon-btn{
+      all:unset;cursor:pointer;
+      padding:6px 8px;border-radius:8px;
+      background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.18);
+      font-size:12px;color:#fff;
+    }
+    .icon-btn.danger{background:rgba(120,20,20,.65)}
+    .icon-btn:hover{outline:2px solid var(--ring)}
+
+    .modal{position:fixed;inset:0;display:none;place-items:center;background:rgba(0,0,0,.6);backdrop-filter:blur(5px);z-index:100}
+    .modal.open{display:grid}
+    .modal-card{width:min(1100px,92vw);background:#0f1118;border:1px solid rgba(255,255,255,.08);border-radius:16px;overflow:hidden;box-shadow:var(--shadow)}
+    .modal-header{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.06)}
+    .modal-title{font-weight:700}
+    .close{all:unset;cursor:pointer;padding:8px;border-radius:10px}
+    .close:hover{background:rgba(255,255,255,.06)}
+    .modal-body{aspect-ratio:16/9;background:#000}
+    .modal-body iframe,.modal-body video{width:100%;height:100%;display:block}
+    .modal-body.tiktok{aspect-ratio:auto;background:transparent;padding:12px}
+    .modal-body.tiktok blockquote.tiktok-embed{margin:auto}
+
+    footer{opacity:.8;color:var(--muted);text-align:center;padding:28px 8px}
+    .hide{display:none !important}
+
+    body.light{--bg:#f6f7fb; --card:#fff; --text:#11131a; --muted:#5a6475;}
+    body.light .hero-sub{color:#4c5463}
+    body.light .tab{color:#20242e}
+    body.light .card{border-color:#eef0f6;background:#fff}
+    body.light .dur{background:rgba(255,255,255,.9);color:#0a0b10;border-color:#e7e9ef}
+
+    .auth{
+      position:fixed;inset:0;display:grid;place-items:center;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);z-index:200;
+    }
+    .auth-card{
+      width:min(460px,92vw);background:#0f1118;border:1px solid rgba(255,255,255,.08);
+      border-radius:16px;box-shadow:var(--shadow);padding:22px;
+    }
+    .auth h2{margin:6px 0 12px}
+    .field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+    .field label{font-size:13px;color:#cfd6e6}
+    .input{
+      width:100%;padding:10px 12px;border-radius:10px;background:#0b0e16;
+      border:1px solid rgba(255,255,255,.08);color:#e9ecf7;
+    }
+    .row{display:flex;gap:10px;align-items:center;justify-content:space-between}
+    .small{font-size:12px;color:var(--muted)}
+    .error{color:#ffd4d4;background:#341d1d;border:1px solid #5a2b2b;padding:8px 10px;border-radius:10px;margin-bottom:10px}
+
+    .editor-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:10px 6px;margin:8px 0 0;}
+    .chip{padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);font-size:12px}
+    .muted{color:var(--muted)}
+    .sep{opacity:.3}
+
+    .empty{
+      display:grid;place-items:center;padding:40px 12px;border:1px dashed rgba(255,255,255,.18);
+      border-radius:14px;color:var(--muted);margin:16px 0 26px;background:rgba(255,255,255,.03)
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="hero">
+      <div class="hero-inner">
+        <div>
+          <div class="badge">🎬 Mural de Vídeos</div>
+          <h1 class="hero-title" id="heroTitle">Mural de Vídeos</h1>
+          <p class="hero-sub" id="heroSub">Vídeos por categorias — dados salvos na conta (nuvem)</p>
+        </div>
+        <div class="row">
+          <button class="btn" id="mode" title="Alternar tema">🌓 Tema</button>
+          <span class="chip muted" id="whoami">Desconectado</span>
+          <button class="btn" id="logoutBtn">Sair</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="controls">
+      <div class="controls-inner container">
+        <div class="tabs" id="tabs"></div>
+        <div class="editor-bar" id="editorBar">
+          <span class="chip">✏️ Modo edição</span>
+          <button class="btn" id="addCatBtn">+ Categoria</button>
+          <span class="sep">|</span>
+          <button class="btn" id="exportBtn">⬇️ Exportar JSON</button>
+          <button class="btn" id="importBtn">⬆️ Importar JSON</button>
+        </div>
+      </div>
+    </div>
+
+    <main id="content"></main>
+    <footer>Dados salvos na nuvem por usuário</footer>
+  </div>
+
+  <!-- Modal Player -->
+  <div class="modal" id="modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title" id="modalTitle">Reproduzindo…</div>
+        <button class="close" id="modalClose" aria-label="Fechar">✕</button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
+
+  <!-- Auth -->
+  <div class="auth" id="auth">
+    <div class="auth-card">
+      <h2>Entrar no Mural</h2>
+      <p class="small">
+        Usuários permitidos: <b>Minasradiadores</b>, <b>Oito</b>.
+        (senha inicial = mesmo nome)
+      </p>
+      <div class="error" id="authErr" style="display:none"></div>
+      <div class="field">
+        <label for="username">Usuário</label>
+        <input id="username" class="input" placeholder="minasradiadores / oito" autocomplete="username">
+      </div>
+      <div class="field">
+        <label for="password">Senha</label>
+        <input id="password" type="password" class="input" placeholder="sua senha" autocomplete="current-password">
+      </div>
+      <div class="row">
+        <button class="btn" id="loginBtn">Entrar</button>
+        <button class="btn" id="toggleReset">Trocar senha</button>
+      </div>
+      <div id="resetBox" class="hide">
+        <div class="field" style="margin-top:10px;">
+          <label for="newpass">Nova senha</label>
+          <input id="newpass" type="password" class="input" placeholder="mín. 4 caracteres" autocomplete="new-password">
+        </div>
+        <button class="btn">Salvar nova senha</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dialog -->
+  <div class="auth hide" id="dialog">
+    <div class="auth-card" id="dialogCard"></div>
+  </div>
+
+  <script>
+    /****************************************************
+     * CONFIG JSONBIN
+     ****************************************************/
+ const JSONBIN_API_KEY = '$2a$10$pU.kMmDPkoBYyIXmAAD7RunfNsqNUitnI3lu4hm/jN2MrZA.T7Fvq';
+    const JSONBIN_BIN_ID  = '69171e32ae596e708f58b63d';
+
+    const JSONBIN_URL_LATEST = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`;
+    const JSONBIN_URL        = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
+
+    /************ ARMAZENAMENTO LOCAL (só sessão/tema) ************/
+    const LS_SESSION = 'mural:session:v1';
+    const THEME_KEY  = 'mural:mode';
+
+    const DEFAULT_USERS = {
+      minasradiadores:    { password: 'minasradiadores' },
+      oito: { password: 'oito' },
+      marketing:      { password: 'marketing' },
+
+    };
+
+    let REMOTE = { users: {} };
+    let USERS  = {};
+
+    function loadSession(){
+      const raw = localStorage.getItem(LS_SESSION);
+      if(!raw) return null;
+      try { return JSON.parse(raw) } catch { return null }
+    }
+    function saveSession(sess){ localStorage.setItem(LS_SESSION, JSON.stringify(sess)); }
+
+    /************ REMOTO JSONBIN ************/
+    async function fetchRemote(){
+      const res = await fetch(JSONBIN_URL_LATEST, {
+        headers:{
+          'X-Master-Key': JSONBIN_API_KEY,
+          'Content-Type':'application/json'
+        }
+      });
+      if(!res.ok){
+        throw new Error('Erro ao buscar dados remotos');
+      }
+      const data = await res.json();
+      return data.record || { users:{} };
+    }
+
+    async function saveRemote(data){
+      const res = await fetch(JSONBIN_URL, {
+        method:'PUT',
+        headers:{
+          'X-Master-Key': JSONBIN_API_KEY,
+          'Content-Type':'application/json'
+        },
+        body: JSON.stringify(data)
+      });
+      if(!res.ok){
+        throw new Error('Erro ao salvar dados remotos');
+      }
+    }
+
+    function seedData(username){
+      return {
+        owner: username,
+        title: `Mural de Vídeos — ${prettyName(username)}`,
+        categories: []
+      };
+    }
+
+    function ensureDefaultUsers(){
+      if(!REMOTE.users) REMOTE.users = {};
+      for(const u in DEFAULT_USERS){
+        if(!REMOTE.users[u]){
+          REMOTE.users[u] = {
+            password: DEFAULT_USERS[u].password,
+            data: seedData(u)
+          };
+        }
+      }
+      USERS = {};
+      for(const u in REMOTE.users){
+        USERS[u] = { password: REMOTE.users[u].password };
+      }
+    }
+
+    function prettyName(u){
+      if(u==='minasradiadores') return 'Minasradiadores';
+      if(u==='oito') return 'Oito';
+      return u;
+    }
+    function uid(){ return Math.random().toString(36).slice(2,9) }
+
+    /************ HELPERS ************/
+    const $  = (sel, root=document) => root.querySelector(sel);
+    const $$ = (sel, root=document) => [...root.querySelectorAll(sel)];
+
+    function youtubeId(url){
+      try{
+        const u = new URL(url);
+        if(u.hostname.includes('youtu.be')) return u.pathname.slice(1);
+        const v = u.searchParams.get('v'); if(v) return v;
+        const m = url.match(/embed\/([\w-]+)/); if(m) return m[1];
+      }catch{} return null;
+    }
+    function tiktokId(url){
+      try{
+        const clean = url.split('?')[0];
+        const m = clean.match(/\/video\/(\d+)/);
+        if(m) return m[1];
+      }catch{} return null;
+    }
+    function makeThumb(item){
+      if(item.thumb) return item.thumb;
+      if(item.type === 'youtube'){
+        const id = youtubeId(item.src);
+        if(id) return `https://img.youtube.com/vi/${id}/hqdefault.jpg`;
+      }
+      return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(
+        `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675">
+           <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+             <stop offset="0%" stop-color="#7c5cff"/><stop offset="100%" stop-color="#19d6b3"/>
+           </linearGradient></defs>
+           <rect width="1200" height="675" fill="url(#g)"/>
+           <circle cx="600" cy="338" r="80" fill="rgba(0,0,0,.35)"/>
+           <polygon points="570,300 650,338 570,376" fill="white"/>
+         </svg>`
+      );
+    }
+    function escapeHtml(s=''){return s.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+    function escapeAttr(s=''){return escapeHtml(s).replace(/"/g,'&quot;');}
+    function sel(a,b){ return a===b ? ' selected' : '' }
+
+    /************ ESTADO ************/
+    let CURRENT_USER = null;
+    let DATA = null;
+
+    const heroTitle = $('#heroTitle');
+    const whoami    = $('#whoami');
+    const content   = $('#content');
+    const auth      = $('#auth');
+    const authErr   = $('#authErr');
+    const loginBtn  = $('#loginBtn');
+    const logoutBtn = $('#logoutBtn');
+    const toggleReset = $('#toggleReset');
+    const resetBox  = $('#resetBox');
+
+    function loadDataFor(username){
+      if(!REMOTE.users[username]){
+        REMOTE.users[username] = {
+          password: DEFAULT_USERS[username]?.password || username,
+          data: seedData(username)
+        };
+      }
+      if(!REMOTE.users[username].data){
+        REMOTE.users[username].data = seedData(username);
+      }
+      return REMOTE.users[username].data;
+    }
+
+    async function saveCurrentUserData(){
+      if(!CURRENT_USER) return;
+      REMOTE.users[CURRENT_USER].data = DATA;
+      await saveRemote(REMOTE);
+    }
+
+    /************ UI: TABS, LISTA ************/
+    function buildTabs(){
+      const tabs = $('#tabs');
+      tabs.innerHTML = '';
+      const names = DATA.categories.map(c=>c.category);
+      const all = names.length ? ['Tudo', ...names] : [];
+      all.forEach((name,i)=>{
+        const b = document.createElement('button');
+        b.className = 'tab' + (i===0 ? ' active' : '');
+        b.textContent = name;
+        b.dataset.filter = name;
+        b.addEventListener('click', ()=>{
+          $$('.tab',tabs).forEach(t=>t.classList.remove('active'));
+          b.classList.add('active');
+          filterByTab(name);
+        });
+        tabs.appendChild(b);
+      });
+    }
+    function filterByTab(tab){
+      const sections = $$('.category');
+      if(tab === 'Tudo'){ sections.forEach(s=>s.classList.remove('hide')); return; }
+      sections.forEach(s=>{ s.classList.toggle('hide', s.dataset.category !== tab); });
+    }
+
+    function cardTemplate(item, catId){
+      const card = document.createElement('article');
+      card.className = 'card';
+      card.dataset.title = (item.title||'').toLowerCase();
+      card.innerHTML = `
+        <div class="card-actions">
+          <button class="icon-btn" data-role="edit" title="Editar">✏️</button>
+          <button class="icon-btn danger" data-role="del" title="Excluir">🗑️</button>
+        </div>
+        <img class="thumb" alt="${escapeHtml(item.title)}" src="${makeThumb(item)}" loading="lazy"/>
+        <div class="play"><button>▶︎ Assistir</button></div>
+        <div class="dur">${item.duration||''}</div>
+        <div class="meta"><h3 class="title">${escapeHtml(item.title)}</h3></div>`;
+
+      card.addEventListener('click',(e)=>{
+        const role = e.target?.dataset?.role;
+        if(role) return;
+        openModal(item);
+      });
+
+      card.querySelector('[data-role="edit"]').addEventListener('click', (e)=>{
+        e.stopPropagation();
+        videoDialog(catId, item.id);
+      });
+
+      card.querySelector('[data-role="del"]').addEventListener('click', (e)=>{
+        e.stopPropagation();
+        deleteVideo(catId, item.id);
+      });
+
+      card.addEventListener('contextmenu',(e)=>{
+        e.preventDefault();
+        videoDialog(catId, item.id);
+      });
+      return card;
+    }
+
+    function sectionTemplate(category){
+      const sec = document.createElement('section');
+      sec.className = 'category';
+      sec.dataset.category = category.category;
+      sec.dataset.id = category.id;
+      sec.innerHTML = `
+        <div class="category-head">
+          <h2>${escapeHtml(category.category)}</h2>
+          <div class="category-actions">
+            <button class="btn" data-act="addVideo">+ Vídeo</button>
+            <button class="btn" data-act="editCat">Editar categoria</button>
+            <button class="btn btn-danger" data-act="delCat">Excluir</button>
+          </div>
+        </div>
+        ${category.description ? `<p class="category-desc">${escapeHtml(category.description)}</p>` : '<p class="category-desc muted">Sem roteiro/descrição.</p>'}
+        <div class="video-grid"></div>`;
+      const grid = $('.video-grid', sec);
+
+      if(!category.items.length){
+        const empty = document.createElement('div');
+        empty.className = 'empty';
+        empty.innerHTML = `Nenhum vídeo aqui ainda. Clique em <b>+ Vídeo</b> para adicionar.`;
+        grid.appendChild(empty);
+      } else {
+        category.items.forEach(item=> grid.appendChild(cardTemplate(item, category.id)) );
+      }
+
+      sec.querySelector('[data-act="addVideo"]').addEventListener('click', ()=> videoDialog(category.id, null));
+      sec.querySelector('[data-act="editCat"]').addEventListener('click', ()=> categoryDialog(category.id));
+      sec.querySelector('[data-act="delCat"]').addEventListener('click', ()=> deleteCategory(category.id));
+      return sec;
+    }
+
+    function buildContent(){
+      content.innerHTML='';
+      if(!DATA.categories.length){
+        const empty = document.createElement('div');
+        empty.className = 'empty';
+        empty.innerHTML = `Seu mural está vazio. Clique em <b>+ Categoria</b> para começar.`;
+        content.appendChild(empty);
+        return;
+      }
+      DATA.categories.forEach(cat=> content.appendChild(sectionTemplate(cat)) );
+    }
+
+    /************ MODAL PLAYER ************/
+    const modal     = $('#modal');
+    const modalBody = $('#modalBody');
+    const modalTitle= $('#modalTitle');
+
+    function openModal(item){
+      modalTitle.textContent = item.title || 'Reproduzindo';
+      modal.classList.add('open');
+      modalBody.classList.remove('tiktok');
+      modalBody.innerHTML = '';
+
+      if(item.type === 'youtube'){
+        const id = youtubeId(item.src);
+        const iframe = document.createElement('iframe');
+        iframe.src = `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`;
+        iframe.title = item.title;
+        iframe.frameBorder = '0';
+        iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+        iframe.allowFullscreen = true;
+        modalBody.appendChild(iframe);
+
+      } else if(item.type === 'vimeo'){
+        const iframe = document.createElement('iframe');
+        iframe.src = item.src.includes('player.vimeo.com') ? `${item.src}?autoplay=1` : item.src.replace('vimeo.com','player.vimeo.com/video') + '?autoplay=1';
+        iframe.title = item.title;
+        iframe.frameBorder = '0';
+        iframe.allow = 'autoplay; fullscreen; picture-in-picture';
+        iframe.allowFullscreen = true;
+        modalBody.appendChild(iframe);
+
+      } else if(item.type === 'tiktok'){
+        const id = tiktokId(item.src);
+        const canonical = id ? item.src.split('?')[0] : item.src;
+
+        const wrap = document.createElement('blockquote');
+        wrap.className = 'tiktok-embed';
+        wrap.setAttribute('cite', canonical);
+        if(id) wrap.setAttribute('data-video-id', id);
+        wrap.style = 'max-width: 605px; min-width: 325px; margin:auto;';
+        wrap.innerHTML = '<section></section>';
+
+        modalBody.classList.add('tiktok');
+        modalBody.appendChild(wrap);
+
+        const s = document.createElement('script');
+        s.async = true;
+        s.src = 'https://www.tiktok.com/embed.js';
+        s.setAttribute('data-tiktok-embed','1');
+        document.body.appendChild(s);
+
+      } else {
+        const video = document.createElement('video');
+        video.controls = true;
+        video.autoplay = true;
+        video.src = item.src;
+        modalBody.appendChild(video);
+      }
+    }
+    function closeModal(){
+      modal.classList.remove('open');
+      modalBody.classList.remove('tiktok');
+      modalBody.innerHTML = '';
+    }
+    modal.addEventListener('click', (e)=>{ if(e.target === modal) closeModal(); });
+    $('#modalClose').addEventListener('click', closeModal);
+    window.addEventListener('keydown', (e)=>{ if(e.key==='Escape' && modal.classList.contains('open')) closeModal(); });
+
+    /************ DIALOG ************/
+    const dialog     = $('#dialog');
+    const dialogCard = $('#dialogCard');
+    function openDialog(html){ dialogCard.innerHTML = html; dialog.classList.remove('hide'); }
+    function closeDialog(){ dialog.classList.add('hide'); dialogCard.innerHTML=''; }
+    dialog.addEventListener('click', (e)=>{ if(e.target===dialog) closeDialog(); });
+
+    /************ CATEGORIA ************/
+    function categoryDialog(catId){
+      const cat = DATA.categories.find(c=>c.id===catId);
+      if(!cat) return;
+      openDialog(`
+        <h3>Editar categoria</h3>
+        <div class="field"><label>Nome da categoria</label>
+          <input id="fCatName" class="input" value="${escapeAttr(cat.category)}"></div>
+        <div class="field"><label>Roteiro/descrição</label>
+          <textarea id="fCatDesc" class="input" rows="6">${escapeHtml(cat.description||'')}</textarea></div>
+        <div class="row">
+          <button class="btn" id="saveCat">Salvar</button>
+          <button class="btn btn-danger" id="cancelCat">Cancelar</button>
+        </div>
+      `);
+      $('#saveCat').addEventListener('click', async ()=>{
+        cat.category = $('#fCatName').value.trim() || 'Sem nome';
+        cat.description = $('#fCatDesc').value;
+        await saveCurrentUserData();
+        refreshAll();
+        closeDialog();
+      });
+      $('#cancelCat').addEventListener('click', closeDialog);
+    }
+
+    function deleteCategory(catId){
+      if(!confirm('Excluir esta categoria e todos os vídeos?')) return;
+      DATA.categories = DATA.categories.filter(c=>c.id!==catId);
+      saveCurrentUserData().then(refreshAll);
+    }
+
+    function addCategory(){
+      openDialog(`
+        <h3>Nova categoria</h3>
+        <div class="field"><label>Nome</label><input id="nCatName" class="input" placeholder="Ex.: Vlog, Trends, Tutoriais"></div>
+        <div class="field"><label>Roteiro/descrição</label><textarea id="nCatDesc" class="input" rows="5" placeholder="Breve roteiro/ideias da categoria"></textarea></div>
+        <div class="row">
+          <button class="btn" id="createCat">Criar</button>
+          <button class="btn btn-danger" id="cancelNewCat">Cancelar</button>
+        </div>
+      `);
+      $('#createCat').addEventListener('click', async ()=>{
+        const name = $('#nCatName').value.trim() || 'Nova categoria';
+        const desc = $('#nCatDesc').value;
+        DATA.categories.push({ id: uid(), category: name, description: desc, items: [] });
+        await saveCurrentUserData();
+        refreshAll();
+        closeDialog();
+      });
+      $('#cancelNewCat').addEventListener('click', closeDialog);
+    }
+
+    /************ VÍDEO ************/
+    function videoDialog(catId, videoId){
+      const cat = DATA.categories.find(c=>c.id===catId);
+      if(!cat) return;
+      const existing = videoId ? cat.items.find(v=>v.id===videoId) : null;
+      openDialog(`
+        <h3>${existing?'Editar':'Novo'} vídeo</h3>
+        <div class="field"><label>Título</label><input id="vTitle" class="input" value="${escapeAttr(existing?.title||'')}"></div>
+        <div class="field"><label>Tipo</label>
+          <select id="vType" class="input">
+            <option value="tiktok"${sel(existing?.type,'tiktok')}>TikTok</option>
+            <option value="youtube"${sel(existing?.type,'youtube')}>YouTube</option>
+            <option value="vimeo"${sel(existing?.type,'vimeo')}>Vimeo</option>
+            <option value="mp4"${sel(existing?.type,'mp4')}>MP4 (link)</option>
+          </select>
+        </div>
+        <div class="field"><label>Link (URL)</label><input id="vSrc" class="input" value="${escapeAttr(existing?.src||'')}" placeholder="https://..."></div>
+        <div class="field"><label>Duração (opcional)</label><input id="vDur" class="input" value="${escapeAttr(existing?.duration||'')}"></div>
+        <div class="field"><label>Thumb (opcional)</label><input id="vThumb" class="input" value="${escapeAttr(existing?.thumb||'')}" placeholder="URL da miniatura"></div>
+        <div class="row">
+          <button class="btn" id="saveVid">${existing?'Salvar':'Adicionar'}</button>
+          ${existing?'<button class="btn btn-danger" id="delVid">Excluir</button>':''}
+          <button class="btn btn-danger" id="cancelVid">Cancelar</button>
+        </div>
+        <p class="small muted">Dica: clique no ícone <b>🗑️</b> no card para excluir rapidamente.</p>
+      `);
+      $('#saveVid').addEventListener('click', async ()=>{
+        const item = {
+          id: existing?.id || uid(),
+          title: $('#vTitle').value.trim() || 'Sem título',
+          type: $('#vType').value,
+          src: $('#vSrc').value.trim(),
+          duration: $('#vDur').value.trim(),
+          thumb: $('#vThumb').value.trim() || undefined
+        };
+        if(existing){
+          const idx = cat.items.findIndex(v=>v.id===existing.id);
+          cat.items[idx] = item;
+        } else {
+          cat.items.push(item);
+        }
+        await saveCurrentUserData();
+        refreshAll();
+        closeDialog();
+      });
+      $('#cancelVid').addEventListener('click', closeDialog);
+      if(existing){
+        $('#delVid').addEventListener('click', async ()=>{
+          await deleteVideo(catId, existing.id, true);
+        });
+      }
+    }
+
+    async function deleteVideo(catId, videoId, silentClose=false){
+      const cat = DATA.categories.find(c=>c.id===catId);
+      if(!cat) return;
+      if(!confirm('Excluir este vídeo específico?')) return;
+      cat.items = cat.items.filter(v=>v.id!==videoId);
+      await saveCurrentUserData();
+      refreshAll();
+      if(silentClose) closeDialog();
+    }
+
+    /************ LOGIN ************/
+    function showAuth(){
+      auth.classList.remove('hide');
+      whoami.textContent = 'Desconectado';
+      $('#heroSub').textContent = 'Faça login para ver e editar seu mural (salvo na nuvem)';
+    }
+    function hideAuth(){ auth.classList.add('hide'); }
+
+    loginBtn.addEventListener('click', handleLogin);
+    async function handleLogin(){
+      const u = $('#username').value.trim().toLowerCase();
+      const p = $('#password').value;
+      const userObj = USERS[u];
+      const ok = userObj && typeof userObj.password === 'string' && userObj.password === p;
+      if(!ok){
+        authErr.style.display='block';
+        authErr.textContent = 'Usuário ou senha inválidos. (permitidos: minas radiadores / oito; senha inicial = mesmo nome)';
+        return;
+      }
+      saveSession({ username: u });
+      await afterLogin(u);
+    }
+
+    async function afterLogin(username){
+      CURRENT_USER = username;
+      DATA = loadDataFor(CURRENT_USER);
+      hideAuth();
+      whoami.textContent = `Logado: ${prettyName(CURRENT_USER)}`;
+      heroTitle.textContent = DATA?.title || `Mural de Vídeos — ${prettyName(CURRENT_USER)}`;
+      refreshAll();
+    }
+
+    logoutBtn.addEventListener('click', ()=>{
+      localStorage.removeItem(LS_SESSION);
+      CURRENT_USER = null;
+      DATA = null;
+      showAuth();
+      content.innerHTML = '';
+      $('#tabs').innerHTML = '';
+    });
+
+    toggleReset.addEventListener('click', ()=>{
+      resetBox.classList.toggle('hide');
+      const btn = resetBox.querySelector('button');
+      btn.onclick = async ()=>{
+        const u  = $('#username').value.trim().toLowerCase();
+        const old= $('#password').value;
+        const np = $('#newpass').value.trim();
+        if(!REMOTE.users[u]){ alert('Informe primeiro o usuário correto.'); return; }
+        if(REMOTE.users[u].password !== old){ alert('Senha atual incorreta.'); return; }
+        if(np.length < 4){ alert('Senha muito curta.'); return; }
+        REMOTE.users[u].password = np;
+        USERS[u].password = np;
+        await saveRemote(REMOTE);
+        alert('Senha alterada!');
+        resetBox.classList.add('hide');
+      };
+    });
+
+    /************ IMPORT / EXPORT / TEMA ************/
+    $('#exportBtn').addEventListener('click', ()=>{
+      if(!DATA){ alert('Nenhum usuário logado.'); return; }
+      const blob = new Blob([JSON.stringify(DATA, null, 2)], {type:'application/json'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `mural_${CURRENT_USER}.json`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    });
+
+    $('#importBtn').addEventListener('click', ()=>{
+      if(!CURRENT_USER){ alert('Faça login antes de importar.'); return; }
+      openDialog(`
+        <h3>Importar JSON</h3>
+        <p class="small muted">Isso <b>substitui</b> seus dados atuais desta conta.</p>
+        <input type="file" id="fileIn" accept="application/json" class="input">
+        <div class="row" style="margin-top:10px;">
+          <button class="btn" id="doImport">Importar</button>
+          <button class="btn btn-danger" id="cancelImport">Cancelar</button>
+        </div>
+      `);
+      $('#cancelImport').addEventListener('click', closeDialog);
+      $('#doImport').addEventListener('click', ()=>{
+        const f = $('#fileIn').files[0];
+        if(!f){ alert('Selecione um arquivo .json'); return; }
+        const reader = new FileReader();
+        reader.onload = async ()=>{
+          try{
+            const obj = JSON.parse(reader.result);
+            if(!obj || !Array.isArray(obj.categories)) throw new Error('Formato inválido');
+            DATA = obj;
+            await saveCurrentUserData();
+            refreshAll();
+            closeDialog();
+          }catch(e){
+            alert('JSON inválido: ' + e.message);
+          }
+        };
+        reader.readAsText(f);
+      });
+    });
+
+    const modeBtn   = $('#mode');
+    const savedTheme= localStorage.getItem(THEME_KEY);
+    if(savedTheme === 'light') document.body.classList.add('light');
+    modeBtn.addEventListener('click', ()=>{
+      document.body.classList.toggle('light');
+      localStorage.setItem(THEME_KEY, document.body.classList.contains('light') ? 'light' : 'dark');
+    });
+
+    $('#addCatBtn').addEventListener('click', addCategory);
+
+    function refreshAll(){
+      buildTabs();
+      buildContent();
+    }
+
+    /************ INIT ************/
+    (async function init(){
+      try{
+        REMOTE = await fetchRemote();
+      }catch(e){
+        console.error(e);
+        REMOTE = { users:{} };
+      }
+      ensureDefaultUsers();
+
+      const sess = loadSession();
+      if(sess && USERS[sess.username]){
+        await afterLogin(sess.username);
+      }else{
+        showAuth();
+      }
+    })();
+  </script>
+</body>
+</html>
