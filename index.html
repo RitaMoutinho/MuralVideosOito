@@ -103,13 +103,13 @@
       position:fixed;inset:0;display:none;place-items:center;
       background:rgba(0,0,0,.75);backdrop-filter:blur(6px);
       z-index:100;
-      padding:16px;          /* espaço nas bordas no mobile */
+      padding:16px;
       overflow-y:auto;
     }
     .modal.open{display:grid}
 
     .modal-card{
-      width:min(960px,100%);
+      width:min(720px,100%); /* ALTERADO: era 960px, agora 720px para ficar menor */
       background:#0f1118;
       border:1px solid rgba(255,255,255,.08);
       border-radius:16px;
@@ -176,7 +176,7 @@
       .modal-card{border-radius:12px}
       .modal-body{
         aspect-ratio:16/9;
-        max-height:56vw; /* ~56% da largura = proporcional 16/9 */
+        max-height:56vw;
       }
       .modal-body.tiktok{
         aspect-ratio:auto;
@@ -355,7 +355,7 @@
     function openModal(item){
       modalTitle.textContent = item.title || 'Reproduzindo';
       modal.classList.add('open');
-      document.body.style.overflow = 'hidden'; // evita scroll do fundo
+      document.body.style.overflow = 'hidden';
       modalBody.classList.remove('tiktok');
       modalBody.innerHTML = '';
 
@@ -380,23 +380,24 @@
 
       } else if(item.type === 'tiktok'){
         const id = tiktokId(item.src);
-        const canonical = id ? item.src.split('?')[0] : item.src;
-
-        const wrap = document.createElement('blockquote');
-        wrap.className = 'tiktok-embed';
-        wrap.setAttribute('cite', canonical);
-        if(id) wrap.setAttribute('data-video-id', id);
-        wrap.style = 'max-width: 605px; min-width: 325px; margin:auto;';
-        wrap.innerHTML = '<section></section>';
-
         modalBody.classList.add('tiktok');
-        modalBody.appendChild(wrap);
 
-        const s = document.createElement('script');
-        s.async = true;
-        s.src = 'https://www.tiktok.com/embed.js';
-        s.setAttribute('data-tiktok-embed','1');
-        document.body.appendChild(s);
+        if(id){
+          const iframe = document.createElement('iframe');
+          iframe.src = `https://www.tiktok.com/embed/${id}`;
+          iframe.title = item.title || 'TikTok';
+          iframe.frameBorder = '0';
+          iframe.scrolling = 'no';
+          iframe.allow = 'autoplay; encrypted-media';
+          iframe.allowFullscreen = true;
+          iframe.style.cssText = 'width:325px;height:580px;max-width:100%;border-radius:12px;display:block;margin:auto;';
+          modalBody.appendChild(iframe);
+        } else {
+          modalBody.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:300px;gap:16px;color:#e6e8ec">
+            <p style="margin:0;opacity:.7">Não foi possível incorporar este vídeo.</p>
+            <a href="${item.src}" target="_blank" rel="noopener" style="padding:10px 20px;border-radius:999px;background:#7c5cff;color:white;font-weight:700">Abrir no TikTok ↗</a>
+          </div>`;
+        }
 
       } else {
         const video = document.createElement('video');
@@ -411,7 +412,7 @@
       modal.classList.remove('open');
       modalBody.classList.remove('tiktok');
       modalBody.innerHTML = '';
-      document.body.style.overflow = ''; // restaura scroll
+      document.body.style.overflow = '';
     }
 
     modal.addEventListener('click', (e)=>{ if(e.target === modal) closeModal(); });
