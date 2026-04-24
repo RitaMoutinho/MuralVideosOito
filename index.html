@@ -215,13 +215,13 @@
     <div class="auth-card">
       <h2>Entrar no Mural</h2>
       <p class="small">
-        Usuários permitidos: <b>Minasradiadores</b>, <b>Oito</b>.
-        (senha inicial = mesmo nome)
+        Usuários: <b>minasradiadores</b>, <b>oito</b>, <b>marketing</b>.<br>
+        Senha inicial = mesmo nome do usuário.
       </p>
       <div class="error" id="authErr" style="display:none"></div>
       <div class="field">
         <label for="username">Usuário</label>
-        <input id="username" class="input" placeholder="minasradiadores / oito" autocomplete="username">
+        <input id="username" class="input" placeholder="minasradiadores / oito / marketing" autocomplete="username">
       </div>
       <div class="field">
         <label for="password">Senha</label>
@@ -250,7 +250,7 @@
     /****************************************************
      * CONFIG JSONBIN
      ****************************************************/
- const JSONBIN_API_KEY = '$2a$10$pU.kMmDPkoBYyIXmAAD7RunfNsqNUitnI3lu4hm/jN2MrZA.T7Fvq';
+    const JSONBIN_API_KEY = '$2a$10$pU.kMmDPkoBYyIXmAAD7RunfNsqNUitnI3lu4hm/jN2MrZA.T7Fvq';
     const JSONBIN_BIN_ID  = '69171e32ae596e708f58b63d';
 
     const JSONBIN_URL_LATEST = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`;
@@ -260,11 +260,12 @@
     const LS_SESSION = 'mural:session:v1';
     const THEME_KEY  = 'mural:mode';
 
+    // ✅ LOGINS E SENHAS CORRIGIDOS
+    // Usuário (minúsculo, sem espaços) → senha inicial = mesmo nome
     const DEFAULT_USERS = {
-      minasradiadores:    { password: 'minasradiadores' },
-      oito: { password: 'oito' },
-      marketing:      { password: 'marketing' },
-
+      minasradiadores: { password: 'minasradiadores' },
+      oito:            { password: 'oito' },
+      marketing:       { password: 'marketing' },
     };
 
     let REMOTE = { users: {} };
@@ -285,9 +286,7 @@
           'Content-Type':'application/json'
         }
       });
-      if(!res.ok){
-        throw new Error('Erro ao buscar dados remotos');
-      }
+      if(!res.ok) throw new Error('Erro ao buscar dados remotos');
       const data = await res.json();
       return data.record || { users:{} };
     }
@@ -301,9 +300,7 @@
         },
         body: JSON.stringify(data)
       });
-      if(!res.ok){
-        throw new Error('Erro ao salvar dados remotos');
-      }
+      if(!res.ok) throw new Error('Erro ao salvar dados remotos');
     }
 
     function seedData(username){
@@ -324,17 +321,23 @@
           };
         }
       }
+      // Garante que USERS sempre reflita todos os usuários remotos
       USERS = {};
       for(const u in REMOTE.users){
         USERS[u] = { password: REMOTE.users[u].password };
       }
     }
 
+    // ✅ prettyName corrigido para todos os usuários
     function prettyName(u){
-      if(u==='minasradiadores') return 'Minasradiadores';
-      if(u==='oito') return 'Oito';
-      return u;
+      const names = {
+        minasradiadores: 'Minasradiadores',
+        oito:            'Oito',
+        marketing:       'Marketing',
+      };
+      return names[u] || u.charAt(0).toUpperCase() + u.slice(1);
     }
+
     function uid(){ return Math.random().toString(36).slice(2,9) }
 
     /************ HELPERS ************/
@@ -454,17 +457,14 @@
         if(role) return;
         openModal(item);
       });
-
       card.querySelector('[data-role="edit"]').addEventListener('click', (e)=>{
         e.stopPropagation();
         videoDialog(catId, item.id);
       });
-
       card.querySelector('[data-role="del"]').addEventListener('click', (e)=>{
         e.stopPropagation();
         deleteVideo(catId, item.id);
       });
-
       card.addEventListener('contextmenu',(e)=>{
         e.preventDefault();
         videoDialog(catId, item.id);
@@ -550,17 +550,14 @@
       } else if(item.type === 'tiktok'){
         const id = tiktokId(item.src);
         const canonical = id ? item.src.split('?')[0] : item.src;
-
         const wrap = document.createElement('blockquote');
         wrap.className = 'tiktok-embed';
         wrap.setAttribute('cite', canonical);
         if(id) wrap.setAttribute('data-video-id', id);
         wrap.style = 'max-width: 605px; min-width: 325px; margin:auto;';
         wrap.innerHTML = '<section></section>';
-
         modalBody.classList.add('tiktok');
         modalBody.appendChild(wrap);
-
         const s = document.createElement('script');
         s.async = true;
         s.src = 'https://www.tiktok.com/embed.js';
@@ -715,16 +712,19 @@
     function hideAuth(){ auth.classList.add('hide'); }
 
     loginBtn.addEventListener('click', handleLogin);
+
+    // ✅ Login corrigido: aceita o nome do usuário em qualquer capitalização
     async function handleLogin(){
       const u = $('#username').value.trim().toLowerCase();
       const p = $('#password').value;
       const userObj = USERS[u];
       const ok = userObj && typeof userObj.password === 'string' && userObj.password === p;
       if(!ok){
-        authErr.style.display='block';
-        authErr.textContent = 'Usuário ou senha inválidos. (permitidos: minas radiadores / oito; senha inicial = mesmo nome)';
+        authErr.style.display = 'block';
+        authErr.textContent = 'Usuário ou senha inválidos. Usuários disponíveis: minasradiadores, oito, marketing. Senha inicial = nome do usuário.';
         return;
       }
+      authErr.style.display = 'none';
       saveSession({ username: u });
       await afterLogin(u);
     }
@@ -756,11 +756,11 @@
         const np = $('#newpass').value.trim();
         if(!REMOTE.users[u]){ alert('Informe primeiro o usuário correto.'); return; }
         if(REMOTE.users[u].password !== old){ alert('Senha atual incorreta.'); return; }
-        if(np.length < 4){ alert('Senha muito curta.'); return; }
+        if(np.length < 4){ alert('Senha muito curta (mínimo 4 caracteres).'); return; }
         REMOTE.users[u].password = np;
         USERS[u].password = np;
         await saveRemote(REMOTE);
-        alert('Senha alterada!');
+        alert('Senha alterada com sucesso!');
         resetBox.classList.add('hide');
       };
     });
@@ -808,8 +808,8 @@
       });
     });
 
-    const modeBtn   = $('#mode');
-    const savedTheme= localStorage.getItem(THEME_KEY);
+    const modeBtn    = $('#mode');
+    const savedTheme = localStorage.getItem(THEME_KEY);
     if(savedTheme === 'light') document.body.classList.add('light');
     modeBtn.addEventListener('click', ()=>{
       document.body.classList.toggle('light');
